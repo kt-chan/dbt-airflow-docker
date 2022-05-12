@@ -1,3 +1,4 @@
+config-version: 2
 
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
@@ -11,10 +12,10 @@ profile: 'default'
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
-source-paths: ["models"]
+model-paths: ["models"]
 analysis-paths: ["analysis"]
 test-paths: ["tests"]
-data-paths: ["data"]
+seed-paths: ["data"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
@@ -27,14 +28,15 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
+vars:
+    start_date: '01-01-2019'
+    end_date: '02-01-2019'
+
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
     instacart_dbt_models:
-        vars:
-            start_date: '01-01-2019'
-            end_date: '02-01-2019'
         materialized: table
         daily:
             materialized: incremental
