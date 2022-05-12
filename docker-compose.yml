@@ -8,7 +8,8 @@ services:
       POSTGRES_DB : airflowdb
       
       AIRFLOW_SCHEMA: airflow
-    expose:
+    # Update expose to ports for testing
+    ports:
       - 5432
     restart: always
     volumes:
@@ -24,7 +25,8 @@ services:
       POSTGRES_DB : dbtdb
       DBT_SCHEMA: dbt
       DBT_RAW_DATA_SCHEMA: dbt_raw_data
-    expose:
+    # Update expose to ports for testing
+    ports:
       - 5432
     restart: always
     volumes:
