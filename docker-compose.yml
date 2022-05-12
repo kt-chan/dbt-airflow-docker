@@ -13,7 +13,8 @@ services:
     restart: always
     volumes:
       - ./scripts_postgres:/docker-entrypoint-initdb.d
-      # - ./sample_data:/sample_data
+      # Mount sample data for airflow operation
+      - ./sample_data:/sample_data
 
   postgres-dbt:
     image: postgres
