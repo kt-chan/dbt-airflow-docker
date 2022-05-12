@@ -4,4 +4,5 @@ dbt/.user.yml
 dbt/data/order_products__prior.csv.zip
 *.pyc
 sample_data/*
+bak
 .gitkeep
