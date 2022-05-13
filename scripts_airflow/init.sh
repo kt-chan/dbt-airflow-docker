@@ -13,7 +13,8 @@ cd /dbt && dbt compile
 rm -f /airflow/airflow-webserver.pid
 
 sleep 10
-airflow upgradedb
+airflow resetdb 
+
 sleep 10
 airflow connections --add --conn_id 'dbt_postgres_instance_raw_data' --conn_uri $DBT_POSTGRESQL_CONN
 airflow scheduler & airflow webserver
