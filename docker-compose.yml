@@ -97,7 +97,7 @@ services:
       - 5432
     restart: always
     volumes:
-      - postgres-db-volume:/var/lib/postgresql-airflow/data
+      - ./postgres-airflow-volume:/var/lib/postgresql/data
       - ./scripts_postgres:/docker-entrypoint-initdb.d
 
   postgres-dbt:
@@ -116,7 +116,7 @@ services:
       - 5432
     restart: always
     volumes:
-      - postgres-db-volume:/var/lib/postgresql-dbt/data
+      - ./postgres-dbt-volume:/var/lib/postgresql/data
       - ./sample_data:/sample_data
 
       
@@ -188,4 +188,5 @@ services:
     restart: always
 
 volumes:
-  postgres-db-volume:
+  ./postgres-airflow-volume
+  ./postgres-dbt-volume
