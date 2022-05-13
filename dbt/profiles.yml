@@ -3,7 +3,7 @@ default:
   outputs:
     dev:
       type: postgres
-      host: postgres-dbt
+      host: postgres
       user: dbtuser
       pass: pssd
       port: 5432
