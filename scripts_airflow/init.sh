@@ -14,11 +14,5 @@ export AIRFLOW__CELERY__RESULT_BACKEND
 DBT_POSTGRESQL_CONN="postgresql+psycopg2://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${POSTGRES_PORT}/${DBT_POSTGRES_DB}"
 export DBT_POSTGRESQL_CONN
 
-## test
-sleep 10
 
-ls -al /airflow
-ls -al /dbt
-
-airflow connections add 'dbt_postgres_instance_raw_data' --conn_uri $DBT_POSTGRESQL_CONN
 
