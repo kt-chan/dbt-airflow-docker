@@ -121,7 +121,7 @@ services:
     volumes:
       - pg-dbt-volume:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "dbtuser"]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       retries: 5
     restart: always
@@ -170,7 +170,7 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
-    command: webserver
+    command: airflow webserver
     ports:
       - 8080:8080
     healthcheck:
@@ -182,7 +182,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
-    command: scheduler
+    command: airflow scheduler
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
       interval: 10s
@@ -192,7 +192,7 @@ services:
 
   airflow-worker:
     <<: *airflow-common
-    command: celery worker
+    command: airflow celery worker
     healthcheck:
       test:
         - "CMD-SHELL"
@@ -204,7 +204,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
-    command: version
+    command: airflow version
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_UPGRADE: 'true'
@@ -214,7 +214,7 @@ services:
 
   flower:
     <<: *airflow-common
-    command: celery flower
+    command: airflow celery flower
     ports:
       - 5555:5555
     healthcheck:
