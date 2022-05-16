@@ -206,7 +206,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
-    command: airflow initdb
+    command: airflow db init
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_UPGRADE: 'true'
