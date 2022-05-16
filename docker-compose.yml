@@ -44,23 +44,23 @@
 version: '3'
 x-airflow-common:
   &airflow-common
-  # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.1.2}
-  build: .
+  build:
+    context: .
+    dockerfile: dockerfile_airflow
   environment:
     &airflow-common-env
-    DBT_PROFILES_DIR: /dbt
     AIRFLOW_HOME: /airflow
+    DBT_HOME: /dbt
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres-airflow/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_FOLDER: /airflow/dags
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
     AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-    # postgres-dbt connection details. Required for the inital loading of seed data
+
     # Credentials need to match with service postgres-dbt
     DBT_POSTGRES_PASSWORD: pssd
     DBT_POSTGRES_USER : dbtuser
@@ -68,10 +68,9 @@ x-airflow-common:
     DBT_DBT_SCHEMA: dbt
     DBT_DBT_RAW_DATA_SCHEMA: dbt_raw_data
     DBT_POSTGRES_HOST: postgres-dbt
+    
   volumes:
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/logs:/opt/airflow/logs
-    - ./airflow/plugins:/opt/airflow/plugins
+    - ./airflow:/airflow
     - ./dbt:/dbt
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-0}"
   depends_on:
@@ -81,6 +80,8 @@ x-airflow-common:
       condition: service_healthy
     postgres-dbt:
       condition: service_healthy
+    dbt-postgres:
+      condition: service_healthy
 
 services:
   postgres-airflow:
@@ -89,37 +90,60 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
+    volumes:
+      - pg-airflow-volume:/var/lib/postgresql/data
+      - ./scripts_postgres:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
       retries: 5
-    expose:
-      - 5432
     restart: always
-    volumes:
-      - ./postgres-airflow-volume:/var/lib/postgresql/data
-      - ./scripts_postgres:/docker-entrypoint-initdb.d
 
   postgres-dbt:
     image: postgres:13
     environment:
+      POSTGRES_USER: dbtuser
       POSTGRES_PASSWORD: pssd
-      POSTGRES_USER : dbtuser
-      POSTGRES_DB : dbtdb
-      DBT_SCHEMA: dbt
-      DBT_RAW_DATA_SCHEMA: dbt_raw_data
+      POSTGRES_DB: dbtdb
+    volumes:
+      - pg-dbt-volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "dbtuser"]
       interval: 5s
       retries: 5
-    expose:
-      - 5432
     restart: always
-    volumes:
-      - ./postgres-dbt-volume:/var/lib/postgresql/data
-      - ./sample_data:/sample_data
 
-      
+  dbt-postgres:
+    build:
+      context: .
+      dockerfile: dockerfile_dbt
+    ports:
+      - 8081:8081
+    environment:
+      DBT_HOME: /dbt
+      DBT_POSTGRES_PASSWORD: pssd
+      DBT_POSTGRES_USER : dbtuser
+      DBT_POSTGRES_DB : dbtdb
+      DBT_DBT_SCHEMA: dbt
+      DBT_DBT_RAW_DATA_SCHEMA: dbt_raw_data
+      DBT_POSTGRES_HOST: postgres-dbt
+    volumes:
+      - ./dbt:/dbt
+      - ./dbt/profiles.yml:/root/.dbt/profiles.yml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 5s
+      retries: 5    
+    restart: always
+    entrypoint: /project/scripts/init.sh
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres-airflow:
+        condition: service_healthy
+      postgres-dbt:
+        condition: service_healthy
+
   redis:
     image: redis:latest
     ports:
@@ -188,5 +212,5 @@ services:
     restart: always
 
 volumes:
-  ./postgres-airflow-volume
-  ./postgres-dbt-volume
+  pg-airflow-volume:
+  pg-dbt-volume:
