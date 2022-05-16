@@ -7,3 +7,4 @@ dbt/data/order_products__prior.csv.zip
 sample_data/*
 bak
 .gitkeep
+gitpush.sh
