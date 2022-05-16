@@ -49,10 +49,9 @@ x-airflow-common:
     dockerfile: dockerfile_airflow
   environment:
     &airflow-common-env
+    AIRFLOW_HOME: /airflow
     DBT_HOME: /dbt
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
-    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres-airflow/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
@@ -60,6 +59,13 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
 
+    # Credentials need to match with service postgres-airflow
+    POSTGRES_USER: airflow
+    POSTGRES_PASSWORD: airflow
+    POSTGRES_HOST: postgres-airflow
+    POSTGRES_PORT: 5432
+    POSTGRES_DB: airflowdb
+    
     # Credentials need to match with service postgres-dbt
     DBT_POSTGRES_PASSWORD: pssd
     DBT_POSTGRES_USER : dbtuser
@@ -67,6 +73,7 @@ x-airflow-common:
     DBT_DBT_SCHEMA: dbt
     DBT_DBT_RAW_DATA_SCHEMA: dbt_raw_data
     DBT_POSTGRES_HOST: postgres-dbt
+    DBT_POSTGRES_PORT: 5432
     
   volumes:
     - ./airflow:/airflow
@@ -89,6 +96,8 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
+    expose:
+      - 5432
     volumes:
       - pg-airflow-volume:/var/lib/postgresql/data
       - ./scripts_postgres:/docker-entrypoint-initdb.d
@@ -104,6 +113,8 @@ services:
       POSTGRES_USER: dbtuser
       POSTGRES_PASSWORD: pssd
       POSTGRES_DB: dbtdb
+    expose:
+      - 5432
     volumes:
       - pg-dbt-volume:/var/lib/postgresql/data
     healthcheck:
