@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 docker-compose build
 docker-compose up airflow-init
-docker-compose up airflow-webserver
+docker-compose up airflow-webserver -d
 
