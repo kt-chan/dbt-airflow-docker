@@ -138,7 +138,7 @@ services:
       DBT_DBT_RAW_DATA_SCHEMA: dbt_raw_data
       DBT_POSTGRES_HOST: postgres-dbt
     volumes:
-      - ./dbt:/dbt
+      - ./dbt:/dbt:consistent
       - ./dbt/profiles.yml:/root/.dbt/profiles.yml
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081"]
