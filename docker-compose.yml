@@ -50,7 +50,6 @@ x-airflow-common:
 #    dockerfile: dockerfile_airflow
   environment:
     &airflow-common-env
-    AIRFLOW_HOME: /airflow
     DBT_HOME: /dbt
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
@@ -79,7 +78,9 @@ x-airflow-common:
     DBT_POSTGRES_PORT: 5432
     
   volumes:
-    - ./airflow:/airflow
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./airflow/plugins:/opt/airflow/plugins
     - ./dbt:/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
