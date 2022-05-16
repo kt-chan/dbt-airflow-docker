@@ -12,6 +12,13 @@ DBT_POSTGRESQL_CONN="postgresql+psycopg2://${DBT_POSTGRES_USER}:${DBT_POSTGRES_P
 # cd /dbt && rm -rf ./target/* && dbt compile
 # rm -f /airflow/airflow-webserver.pid
 
+# testing
+ls -al /
+ls -al /airflow
+mkdir /testdir
+ls -al ~/
+
+
 sleep 10
 airflow initdb
 sleep 10
