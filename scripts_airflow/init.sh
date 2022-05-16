@@ -20,5 +20,5 @@ sleep 10
 ls -al /airflow
 ls -al /dbt
 
-airflow connections --add --conn_id 'dbt_postgres_instance_raw_data' --conn_uri $DBT_POSTGRESQL_CONN
+airflow connections add 'dbt_postgres_instance_raw_data' --conn_uri $DBT_POSTGRESQL_CONN
 
