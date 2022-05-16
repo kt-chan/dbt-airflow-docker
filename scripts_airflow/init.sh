@@ -9,18 +9,11 @@ export AIRFLOW__WEBSERVER__SECRET_KEY
 
 DBT_POSTGRESQL_CONN="postgresql+psycopg2://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${POSTGRES_PORT}/${DBT_POSTGRES_DB}"
 
-# cd /dbt && rm -rf ./target/* && dbt compile
-# rm -f /airflow/airflow-webserver.pid
+## test
+sleep 10
 
-# testing
-ls -al /
 ls -al /airflow
-mkdir /testdir
-ls -al ~/
+ls -al /dbt
 
-
-sleep 10
-airflow initdb
-sleep 10
 airflow connections --add --conn_id 'dbt_postgres_instance_raw_data' --conn_uri $DBT_POSTGRESQL_CONN
-airflow scheduler & airflow webserver
+
