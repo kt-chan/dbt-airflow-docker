@@ -129,9 +129,7 @@ services:
     restart: always
 
   dbt-postgres:
-    build:
-      context: .
-      dockerfile: dockerfile_dbt
+    build: .
     ports:
       - 8081:8081
     environment:
