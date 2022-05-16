@@ -1,7 +1,6 @@
 FROM python:3.7
-RUN pip install apache-airflow==2.1.2 && \
-    pip install apache-airflow-backport-providers-postgres==2021.3.17 && \
-    pip install SQLAlchemy==1.4.36
+RUN pip install 'apache-airflow==2.3.0' && \
+    pip install 'apache-airflow[postgres]==2.3.0'
 
 RUN mkdir /project
 COPY scripts_airflow/ /project/scripts/
