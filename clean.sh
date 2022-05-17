@@ -7,6 +7,7 @@ mkdir ./airflow/plugins
 
 #docker-compose down --rmi all --volumes 
 docker-compose down
+docker volume rm $(docker volume ls -q)
 
 
 

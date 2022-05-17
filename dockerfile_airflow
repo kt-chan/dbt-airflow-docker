@@ -1,0 +1,9 @@
+FROM apache/airflow:2.3.0
+RUN pip install --user apache-airflow-providers-postgres==4.1.0
+
+USER root
+COPY ./scripts/airflow_init.sh /init.sh
+RUN chmod +x /init.sh
+
+USER airflow
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/init.sh"]

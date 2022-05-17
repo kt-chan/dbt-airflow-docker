@@ -4,10 +4,7 @@ RUN pip install markupsafe==2.0.1 \
     pip install dbt-postgres==1.1.0 && \
     pip install dbt-rpc==0.1.2
 
+COPY scripts/dbt_init.sh /root/init.sh
+RUN chmod +x /root/init.sh
 
-RUN mkdir /project
-COPY scripts_dbt/ /project/scripts/
-
-RUN chmod +x /project/scripts/init.sh
-
-ENTRYPOINT [ "/project/scripts/init.sh" ]
+ENTRYPOINT [ "/root/init.sh" ]

@@ -44,20 +44,22 @@
 version: '3'
 x-airflow-common:
   &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.2.5}
-#  build:
-#    context: .
-#    dockerfile: dockerfile_airflow
+  #image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.2.5}
+  build:
+    context: .
+    dockerfile: dockerfile_airflow
   environment:
     &airflow-common-env
     DBT_HOME: /dbt
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    # for airflow backward compatbility
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres-airflow/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
 
@@ -66,7 +68,7 @@ x-airflow-common:
     POSTGRES_PASSWORD: airflow
     POSTGRES_HOST: postgres-airflow
     POSTGRES_PORT: 5432
-    POSTGRES_DB: airflowdb
+    POSTGRES_DB: airflow
     
     # Credentials need to match with service postgres-dbt
     DBT_POSTGRES_PASSWORD: pssd
@@ -129,7 +131,9 @@ services:
     restart: always
 
   dbt-postgres:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfile_dbt
     ports:
       - 8081:8081
     environment:
@@ -148,7 +152,6 @@ services:
       interval: 5s
       retries: 5    
     restart: always
-    entrypoint: /project/scripts/init.sh
     depends_on:
       redis:
         condition: service_healthy
@@ -171,6 +174,8 @@ services:
   airflow-webserver:
     <<: *airflow-common
     command: webserver
+    environment:
+      <<: *airflow-common-env
     ports:
       - 8080:8080
     healthcheck:
