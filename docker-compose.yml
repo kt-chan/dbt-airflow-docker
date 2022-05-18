@@ -60,7 +60,7 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     #Database CONNECTIONs
     AIRFLOW_CONN_DBT_POSTGRESQL_CONN: postgresql+psycopg2://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${DBT_POSTGRES_PORT}/${DBT_POSTGRES_DB}
@@ -68,8 +68,8 @@ x-airflow-common:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/plugins:/opt/airflow/plugins
-    - ./dbt:/dbt
     - ./scripts:$AIRFLOW_HOME/init-scripts
+    - ./dbt:/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -79,7 +79,7 @@ x-airflow-common:
       condition: service_healthy
     postgres-dbt:
       condition: service_healthy
-    dbt-postgres:
+    dbt-service:
       condition: service_healthy
 
 services:
@@ -106,22 +106,24 @@ services:
       POSTGRES_USER: dbtuser
       POSTGRES_PASSWORD: pssd
       POSTGRES_DB: dbtdb
-    expose:
+    ports:
       - 5432
     volumes:
       - pg-dbt-volume:/var/lib/postgresql/data
+      - ./sample_data:/sample_data
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 5s
       retries: 5
     restart: always
 
-  dbt-postgres:
+  dbt-service:
     build:
       context: .
       dockerfile: dockerfile_dbt
     ports:
       - 8081:8081
+      - 8580:8580
     environment:
       DBT_HOME: /dbt
       DBT_POSTGRES_PASSWORD: pssd
@@ -305,7 +307,7 @@ services:
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
     user: "0:0"
     volumes:
-      - .:/sources
+      - ./airflow:/sources
 
   airflow-cli:
     <<: *airflow-common
@@ -320,7 +322,7 @@ services:
       - -c
       - airflow
 
-  flower:
+  airflow-flower:
     <<: *airflow-common
     command: celery flower
     ports:
