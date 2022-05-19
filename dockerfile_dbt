@@ -1,8 +1,15 @@
 FROM python:3.7
-RUN pip install markupsafe==2.0.1 \
+RUN pip install markupsafe==2.0.1 && \
     pip install wtforms==2.3.3 && \
-    pip install dbt-postgres==1.1.0 && \
-    pip install dbt-rpc==0.1.2
+    pip install dbt-postgres==1.1.0
+
+RUN apt-get update
+RUN apt-get install openssh-server -y
+RUN echo "Port 22" >> /etc/ssh/sshd_config
+#RUN echo 'root:password' | chpasswd
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+RUN echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
 COPY scripts/dbt_init.sh /root/init.sh
 RUN chmod +x /root/init.sh

@@ -1,12 +1,30 @@
 from airflow import DAG, macros
 from airflow.operators.bash_operator import BashOperator
+from airflow.operators.python_operator import PythonOperator
+from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 from datetime import datetime
+
+# For Logging on debug
+import logging
 
 # Parse nodes
 import json
 JSON_MANIFEST_DBT = '/dbt/target/manifest.json'
 PARENT_MAP = 'parent_map'
+
+def ssh_run(cmd=None, **kwargs):
+    ssh = SSHHook(ssh_conn_id='dbt_ssh_conn')
+    ssh_client = None
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        stdin, stdout, stderr = ssh_client.exec_command(cmd)
+        logging.info("STDOUT:\n")
+        logging.info(stdout.readlines())
+    finally:
+        if ssh_client:
+            ssh_client.close()    
 
 def sanitise_node_names(value):
         segments = value.split('.')
@@ -38,7 +56,7 @@ def get_node_structure():
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2019, 1, 1),
+    'start_date': datetime(2022, 5, 18),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1
@@ -77,9 +95,10 @@ for node in nodes:
         date_end = "{{ ds }}"
         date_start = "{{ yesterday_ds }}"
         bsh_cmd = 'cd /dbt && dbt run --models {nodeName} --vars \'{{"start_date":"{start_date}", "end_date":"{end_date}"}}\' '.format(nodeName = node, start_date = date_start, end_date = date_end)
-        tmp_operator = BashOperator(
+        tmp_operator = PythonOperator(
             task_id= node,
-            bash_command=bsh_cmd,
+            python_callable=ssh_run,
+            op_kwargs={'cmd': bsh_cmd},
             dag=daily_dag,
             depends_on_past = True
         )
@@ -87,10 +106,12 @@ for node in nodes:
 
     elif ('snapshot' in nodes[node]['tags']):
         bsh_cmd = 'cd /dbt && dbt run --models {nodeName} '.format(nodeName = node)
-        tmp_operator = BashOperator(
+        tmp_operator = PythonOperator(
             task_id= node,
-            bash_command=bsh_cmd,
+            python_callable=ssh_run,
+            op_kwargs={'cmd': bsh_cmd},
             dag=snapshot_dag,
+            depends_on_past = True
         )
         all_operators[node] = tmp_operator
 
@@ -98,10 +119,12 @@ for node in nodes:
         date_end = "{{ ds }}"
         date_start = "{{ yesterday_ds }}"
         bsh_cmd = 'cd /dbt && dbt run --models {nodeName} '.format(nodeName = node)
-        tmp_operator = BashOperator(
+        tmp_operator = PythonOperator(
             task_id= node,
-            bash_command=bsh_cmd,
+            python_callable=ssh_run,
+            op_kwargs={'cmd': bsh_cmd},
             dag=init_once_dag,
+            depends_on_past = True
         )
         all_operators[node] = tmp_operator
 

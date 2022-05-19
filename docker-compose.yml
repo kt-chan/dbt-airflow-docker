@@ -63,7 +63,10 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     #Database CONNECTIONs
-    AIRFLOW_CONN_DBT_POSTGRESQL_CONN: postgresql+psycopg2://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${DBT_POSTGRES_PORT}/${DBT_POSTGRES_DB}
+    AIRFLOW_CONN_DBT_POSTGRESQL_CONN: " postgresql://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${DBT_POSTGRES_PORT}/${DBT_POSTGRES_DB}"
+    #DBT RPC CONNECTIONs
+    AIRFLOW_CONN_DBT_SSH_CONN:  ssh://${DBT_SSH_HOST}:${DBT_SSH_PORT}?conn_timeout=10&compress=false&no_host_key_check=true&allow_host_key_change=true&key_file=${SSH_KEY_FILE}
+    TZ: "Asia/Hong_Kong"
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -89,6 +92,7 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
+      TZ: "Asia/Hong_Kong"
     expose:
       - 5432
     volumes:
@@ -106,6 +110,7 @@ services:
       POSTGRES_USER: dbtuser
       POSTGRES_PASSWORD: pssd
       POSTGRES_DB: dbtdb
+      TZ: "Asia/Hong_Kong"
     ports:
       - 5432
     volumes:
@@ -121,9 +126,12 @@ services:
     build:
       context: .
       dockerfile: dockerfile_dbt
+    environment:
+      TZ: "Asia/Hong_Kong"
+    expose:
+      - 22
     ports:
       - 8081:8081
-      - 8580:8580
     environment:
       DBT_HOME: /dbt
       DBT_POSTGRES_PASSWORD: pssd
@@ -133,6 +141,7 @@ services:
       DBT_DBT_RAW_DATA_SCHEMA: dbt_raw_data
       DBT_POSTGRES_HOST: postgres-dbt
     volumes:
+      - ~/.ssh:/root/.ssh:ro
       - ./dbt:/dbt:consistent
       - ./dbt/profiles.yml:/root/.dbt/profiles.yml
     healthcheck:
@@ -150,6 +159,8 @@ services:
 
   redis:
     image: redis:latest
+    environment:
+      TZ: "Asia/Hong_Kong"
     ports:
       - 6379:6379
     healthcheck:
