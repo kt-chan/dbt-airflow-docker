@@ -1,9 +1,10 @@
-from airflow import DAG, macros
+from airflow import DAG, macros, AirflowException
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 from datetime import datetime
+
 
 # For Logging on debug
 import logging
@@ -20,8 +21,14 @@ def ssh_run(cmd=None, **kwargs):
         ssh_client = ssh.get_conn()
         ssh_client.load_system_host_keys()
         stdin, stdout, stderr = ssh_client.exec_command(cmd)
-        logging.info("STDOUT:\n")
-        logging.info(stdout.readlines())
+        logging.info("stdout ------>"+str(stdout.readlines()))
+        logging.info("Error--------->"+str(stderr.readlines()))
+        if (stdout.channel.recv_exit_status())!= 0:
+            logging.info("Error Return code not Zero:"+ 
+            str(stdout.channel.recv_exit_status()))
+            return False
+        else:
+            return 'Completed successfully' in str(stderr.readlines())
     finally:
         if ssh_client:
             ssh_client.close()    
