@@ -111,7 +111,7 @@ services:
       POSTGRES_PASSWORD: pssd
       POSTGRES_DB: dbtdb
       TZ: "Asia/Hong_Kong"
-    ports:
+    expose:
       - 5432
     volumes:
       - pg-dbt-volume:/var/lib/postgresql/data
@@ -354,7 +354,20 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-        
+  jupyter-notebook:
+    image: jupyter/datascience-notebook
+    volumes:
+      - ./jupyter:/home/jupyter/work
+    ports:
+      - 8888:8888
+    environment:
+      JUPYTER_TOKEN: 'welcome'
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8888/"]
+      interval: 10s
+      timeout: 10s
+      retries: 5        
+
 volumes:
   pg-airflow-volume:
   pg-dbt-volume:
