@@ -92,6 +92,21 @@ init_once_dag = DAG(
     schedule_interval = None,
 )
 
+dbt_refresh_dag = DAG(
+    '999_dbt_refresh_dag',
+    default_args=default_args,
+    description='Managing dbt compile / docs ',
+    schedule_interval = None,
+)
+
+dbt_refresh_operator = PythonOperator(
+            task_id= 'dbt_refresh',
+            python_callable=ssh_run,
+            op_kwargs={'cmd': 'cd /dbt && dbt compile  && dbt run && dbt docs generate '},
+            dag=dbt_refresh_dag,
+            depends_on_past = True
+        )
+        
 all_operators = {}
 # [END instantiate_dag]
 
@@ -140,3 +155,5 @@ for node in nodes:
     for parent in nodes[node]['ancestors']:
         if nodes[node]['tags'] == nodes[parent]['tags']:
             all_operators[parent] >> all_operators[node]
+
+dbt_refresh_operator
