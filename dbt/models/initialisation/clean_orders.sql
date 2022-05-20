@@ -11,10 +11,7 @@ with initial_dates as (
 cumulative_dates as (
     select *
     , sum(days_since_prior_order_v2) over ( partition by user_id ORDER BY user_id asc, order_number ASC) as days_since_prior_order_cum
-    , case order_number
-            when 1 then random_date_v2
-            else FIRST_VALUE(random_date_v2) OVER (PARTITION BY user_id ORDER BY order_number ASC ) 
-        end as first_order 
+    , FIRST_VALUE(random_date_v2) OVER (PARTITION BY user_id ORDER BY order_number ASC ) as first_order 
     from initial_dates
 )
 select 

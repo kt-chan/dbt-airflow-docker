@@ -63,7 +63,7 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     #Database CONNECTIONs
-    AIRFLOW_CONN_DBT_POSTGRESQL_CONN: " postgresql://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${DBT_POSTGRES_PORT}/${DBT_POSTGRES_DB}"
+    AIRFLOW_CONN_DBT_POSTGRESQL_CONN: "postgresql://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${DBT_POSTGRES_PORT}/${DBT_POSTGRES_DB}"
     #DBT RPC CONNECTIONs
     AIRFLOW_CONN_DBT_SSH_CONN:  ssh://${DBT_SSH_HOST}:${DBT_SSH_PORT}?conn_timeout=10&compress=false&no_host_key_check=true&allow_host_key_change=true&key_file=${SSH_KEY_FILE}
     TZ: "Asia/Hong_Kong"
@@ -89,9 +89,9 @@ services:
   postgres-airflow:
     image: postgres:13
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: ${AIRFLOW_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AIRFLOW_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AIRFLOW_POSTGRES_DB}
       TZ: "Asia/Hong_Kong"
     expose:
       - 5432
@@ -107,9 +107,9 @@ services:
   postgres-dbt:
     image: postgres:13
     environment:
-      POSTGRES_USER: dbtuser
-      POSTGRES_PASSWORD: pssd
-      POSTGRES_DB: dbtdb
+      POSTGRES_USER: ${DBT_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DBT_POSTGRES_DB}
       TZ: "Asia/Hong_Kong"
     expose:
       - 5432
@@ -132,12 +132,12 @@ services:
       - 8081:8081
     environment:
       DBT_HOME: /dbt
-      DBT_POSTGRES_PASSWORD: pssd
-      DBT_POSTGRES_USER : dbtuser
-      DBT_POSTGRES_DB : dbtdb
-      DBT_DBT_SCHEMA: dbt
-      DBT_DBT_RAW_DATA_SCHEMA: dbt_raw_data
-      DBT_POSTGRES_HOST: postgres-dbt
+      DBT_POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
+      DBT_POSTGRES_USER : ${DBT_POSTGRES_USER}
+      DBT_POSTGRES_DB : ${DBT_POSTGRES_DB}
+      DBT_DBT_SCHEMA: ${DBT_DBT_SCHEMA}
+      DBT_DBT_RAW_DATA_SCHEMA: ${DBT_DBT_RAW_DATA_SCHEMA}
+      DBT_POSTGRES_HOST: ${DBT_POSTGRES_HOST}
       TZ: "Asia/Hong_Kong"
     volumes:
       - ~/.ssh:/root/.ssh:ro
@@ -356,17 +356,31 @@ services:
 
   jupyter-notebook:
     image: jupyter/datascience-notebook
-    volumes:
-      - ./jupyter:/home/jupyter/work
+    command:  "start-notebook.sh \
+      --NotebookApp.password=${JUPYTER_TOKEN}"
+    user: root
     ports:
       - 8888:8888
     environment:
-      JUPYTER_TOKEN: 'welcome'
+      <<: *airflow-common-env
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN}
+      DBT_POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
+      DBT_POSTGRES_USER : ${DBT_POSTGRES_USER}
+      DBT_POSTGRES_DB : ${DBT_POSTGRES_DB}
+      DBT_DBT_SCHEMA: ${DBT_DBT_SCHEMA}
+      DBT_DBT_RAW_DATA_SCHEMA: ${DBT_DBT_RAW_DATA_SCHEMA}
+      DBT_POSTGRES_HOST: ${DBT_POSTGRES_HOST}
+      TZ: "Asia/Hong_Kong"
+      CHOWN_HOME: 'yes'
+      CHOWN_HOME_OPTS: -R      
+    restart: always
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8888/"]
       interval: 10s
       timeout: 10s
       retries: 5        
+    volumes:
+      - ./jupyter:/home/jovyan:consistent
 
 volumes:
   pg-airflow-volume:
