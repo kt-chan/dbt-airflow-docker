@@ -128,8 +128,8 @@ services:
       dockerfile: dockerfile_dbt
     expose:
       - 22
-    ports:
-      - 8081:8081
+    expose:
+      - 8081
     environment:
       DBT_HOME: /dbt
       DBT_POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
@@ -160,8 +160,8 @@ services:
     image: redis:latest
     environment:
       TZ: "Asia/Hong_Kong"
-    ports:
-      - 6379:6379
+    expose:
+      - 6379
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -323,6 +323,7 @@ services:
     volumes:
       - ./airflow:/sources
 
+  # for debugg only
   airflow-cli:
     <<: *airflow-common
     profiles:
@@ -339,8 +340,8 @@ services:
   airflow-flower:
     <<: *airflow-common
     command: celery flower
-    ports:
-      - 5555:5555
+    expose:
+      - 5555
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
       interval: 10s
@@ -385,3 +386,4 @@ services:
 volumes:
   pg-airflow-volume:
   pg-dbt-volume:
+

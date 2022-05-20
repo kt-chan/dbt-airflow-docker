@@ -1,0 +1,38 @@
+!pip install psycopg2-binary
+!pip install pandas plotnine
+import os
+import psycopg2 as ps
+import pandas as pd
+import sqlalchemy
+import numpy as np
+from plotnine import *
+
+os.environ['AIRFLOW_CONN_DBT_POSTGRESQL_CONN']
+
+
+conn = sqlalchemy.create_engine(os.environ['AIRFLOW_CONN_DBT_POSTGRESQL_CONN'])
+dbschema = pd.read_sql_query("SELECT * FROM pg_catalog.pg_namespace;", con=conn)
+dbschema
+
+
+dfOrders = pd.read_sql_query("select * from dbt.clean_orders order by user_id, order_number limit 100000;", con=conn)
+dfOrders
+
+
+dfOrdersProducts = pd.read_sql_query("select * from dbt.order_products order by order_id, add_to_cart_order limit 100000;", con=conn)
+dfOrdersProducts
+
+
+grouped_df = dfOrders.groupby('user_id')["order_id"].count().reset_index(name='total_orders').sort_values(['total_orders'], ascending=False)
+ggplot(grouped_df, aes(x='total_orders')) + geom_bar(stat = 'count') + geom_bar(fill="salmon") + ggtitle("Counts on Number of Orders")  +  ylab("Counts") + xlab("Number of Orders")
+
+
+group_df = dfOrdersProducts.groupby('order_id')["product_id"].count().reset_index(name='total_products').sort_values(['total_products'], ascending=False)
+ggplot(group_df, aes(x='total_products')) + geom_bar(stat = 'count') + geom_bar(fill="salmon") + ggtitle("Number of products in a order") 
+
+
+grouped_df = dfOrders.groupby(['order_dow', 'order_hour_of_day'])["order_id"].count().reset_index(name='total_orders').sort_values(['total_orders'], ascending=False)
+ggplot(grouped_df, aes(x='order_dow', y='order_hour_of_day')) + geom_tile(aes(fill = 'total_orders'), colour = "black") + scale_fill_gradient(low = "white", high = "red") + ggtitle("Frequency of Day of week (DoW) Vs Hour of day") 
+
+grouped_df = dfOrders.dropna().groupby(['days_since_prior_order'])["order_id"].count().reset_index(name='total_orders').sort_values(['total_orders'], ascending=False)
+ggplot(grouped_df, aes(x='days_since_prior_order', y='total_orders')) + geom_bar(stat="identity",fill="salmon") +  ggtitle("Frequency distribution by days since prior order")
