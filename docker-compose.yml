@@ -85,6 +85,16 @@ x-airflow-common:
     dbt-service:
       condition: service_healthy
 
+x-spark-common:
+  &spark-common
+  environment:
+    &spark-common-env
+    user: "${SPARK_UID:-50000}:0"
+    SPARK_HOME: ${SPARK_HOME}
+    SPARK_MASTER_PORT: ${SPARK_MASTER_PORT}
+    SPARK_MASTER_WEBUI_PORT: ${SPARK_MASTER_WEBUI_PORT}
+    SPARK_THRIFT_PORT: ${SPARK_THRIFT_PORT}
+    
 services:
   postgres-airflow:
     image: postgres:13
@@ -123,13 +133,11 @@ services:
     restart: always
 
   dbt-service:
-    build:
-      context: .
-      dockerfile: dockerfile_dbt
+    image: dbt-service:1.1.0
     expose:
       - 22
-    expose:
-      - 8081
+    ports:
+      - 8081:8081
     environment:
       DBT_HOME: /dbt
       DBT_POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
@@ -356,7 +364,7 @@ services:
         condition: service_completed_successfully
 
   jupyter-notebook:
-    image: jupyter/datascience-notebook
+    image: jupyter/all-spark-notebook
     command:  "start-notebook.sh \
       --NotebookApp.password=${JUPYTER_TOKEN}"
     user: root
@@ -383,7 +391,74 @@ services:
     volumes:
       - ./jupyter:/home/jovyan:consistent
 
+  spark-master:
+    image: spark-master
+    container_name: spark-master
+    environment:
+      <<: *spark-common-env
+    ports:
+      - ${SPARK_MASTER_PORT}:${SPARK_MASTER_PORT}
+      - ${SPARK_MASTER_WEBUI_PORT}:${SPARK_MASTER_WEBUI_PORT}
+      - ${SPARK_THRIFT_PORT}:${SPARK_THRIFT_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost: ${SPARK_MASTER_WEBUI_PORT}"]
+      interval: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - shared-workspace:/opt/workspace
+      - ./logs:${SPARK_HOME}/logs:consistent
+  
+  spark-worker-1:
+    image: spark-worker
+    container_name: spark-worker-1
+    environment:
+      <<: *spark-common-env
+      SPARK_WORKER_CORES: 1
+      SPARK_WORKER_MEMORY: 64m
+    expose:
+      - ${SPARK_WORKER_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_WORKER_PORT}"]
+      interval: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - shared-workspace:/opt/workspace
+      - ./logs:${SPARK_HOME}/logs:consistent
+    depends_on:
+      spark-master:
+        condition: service_healthy
+  
+  spark-worker-2:
+    image: spark-worker
+    container_name: spark-worker-2
+    environment:
+      <<: *spark-common-env
+      SPARK_WORKER_CORES: 1
+      SPARK_WORKER_MEMORY: 64m
+    expose:
+      - ${SPARK_WORKER_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_WORKER_PORT}"]
+      interval: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - shared-workspace:/opt/workspace
+      - ./logs:${SPARK_HOME}/logs:consistent
+    depends_on:
+      spark-master:
+        condition: service_healthy
+        
 volumes:
   pg-airflow-volume:
+    name: "pgdb-airflow"
+    driver: local
   pg-dbt-volume:
+    name: "pgdb-dbt"
+    driver: local
+  shared-workspace:
+    name: "hdfs"
+    driver: local
 

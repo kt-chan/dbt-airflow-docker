@@ -26,9 +26,11 @@ def ssh_run(cmd=None, **kwargs):
         if (stdout.channel.recv_exit_status())!= 0:
             logging.info("Error Return code not Zero:"+ 
             str(stdout.channel.recv_exit_status()))
+            raise Exception("Error Returned!")
             return False
         else:
-            return 'Completed successfully' in str(stderr.readlines())
+            return True
+            
     finally:
         if ssh_client:
             ssh_client.close()    

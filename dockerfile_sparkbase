@@ -1,0 +1,33 @@
+FROM debian:stretch
+
+ENV SparkVersion=3.2.1
+ENV HadoopVersion=3.2
+ENV JAVA_HOME=/usr
+ENV SPARK_HOME=/usr/bin/spark-${SparkVersion}-bin-hadoop${HadoopVersion}
+ENV PATH=$SPARK_HOME:$PATH:/bin:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
+ENV PYSPARK_PYTHON=/usr/bin/python
+ENV PYTHONPATH=$SPARK_HOME/python:$PYTHONPATH
+
+ENV SPARK_MASTER_HOST=spark-master
+
+ENV APP=/app
+ENV SHARED_WORKSPACE=/opt/workspace
+
+# System packages
+RUN apt-get clean && apt-get update -y
+RUN apt-get install -y python3 python3-pip curl wget unzip procps  openjdk-8-jdk && \
+  ln -s /usr/bin/python3 /usr/bin/python && \
+  rm -rf /var/lib/apt/lists/*
+
+# Install Spark
+RUN curl https://dlcdn.apache.org/spark/spark-${SparkVersion}/spark-${SparkVersion}-bin-hadoop${HadoopVersion}.tgz -o spark.tgz 
+RUN tar -xvzf spark.tgz 
+RUN mv spark-${SparkVersion}-bin-hadoop${HadoopVersion} /usr/bin/ 
+RUN mkdir /usr/bin/spark-${SparkVersion}-bin-hadoop${HadoopVersion}/logs 
+RUN chown root:root -R $SPARK_HOME
+RUN rm spark.tgz
+
+# Prepare dirs
+RUN mkdir -p /tmp/logs/ && chmod a+w /tmp/logs/ && mkdir /app && chmod a+rwx /app && mkdir /data && chmod a+rwx /data
+RUN mkdir -p ${SHARED_WORKSPACE}
+VOLUME ${SHARED_WORKSPACE}
