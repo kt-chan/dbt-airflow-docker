@@ -12,16 +12,15 @@ default:
       threads: 4
 
 spark:
-  target: dev
+  target: local
   outputs:
-    dev:
+    local:
       type: spark
       method: thrift
-      schema: [database/schema name]
-      host: [hostname]
-      
-      # optional
-      port: [port]              # default 10001
-      user: [user]
-      auth: [e.g. KERBEROS]
-      kerberos_service_name: [e.g. hive]
+      host: spark-master
+      port: 10000
+      user: hive
+      schema: dbtdb
+      connect_retries: 5
+      connect_timeout: 60
+      retry_all: true

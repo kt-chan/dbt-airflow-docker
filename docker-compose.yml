@@ -45,9 +45,7 @@ version: '3'
 x-airflow-common:
   &airflow-common
   #image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.2.5}
-  build:
-    context: .
-    dockerfile: dockerfile_airflow
+  image: airflow:2.3.0
   environment:
     &airflow-common-env
     DBT_HOME: /dbt
@@ -93,11 +91,14 @@ x-spark-common:
     SPARK_HOME: ${SPARK_HOME}
     SPARK_MASTER_PORT: ${SPARK_MASTER_PORT}
     SPARK_MASTER_WEBUI_PORT: ${SPARK_MASTER_WEBUI_PORT}
+    SPARK_UI_PORT: ${SPARK_UI_PORT}
     SPARK_THRIFT_PORT: ${SPARK_THRIFT_PORT}
-    
+    TZ: "Asia/Hong_Kong"
+
 services:
   postgres-airflow:
     image: postgres:13
+    container_name: postgres-airflow
     environment:
       POSTGRES_USER: ${AIRFLOW_POSTGRES_USER}
       POSTGRES_PASSWORD: ${AIRFLOW_POSTGRES_PASSWORD}
@@ -116,6 +117,7 @@ services:
 
   postgres-dbt:
     image: postgres:13
+    container_name: postgres-dbt
     environment:
       POSTGRES_USER: ${DBT_POSTGRES_USER}
       POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
@@ -134,6 +136,7 @@ services:
 
   dbt-service:
     image: dbt-service:1.1.0
+    container_name: dbt-service
     expose:
       - 22
     ports:
@@ -166,6 +169,7 @@ services:
 
   redis:
     image: redis:latest
+    container_name: redis
     environment:
       TZ: "Asia/Hong_Kong"
     expose:
@@ -179,6 +183,7 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
+    container_name: airflow-webserver
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
     command:
@@ -203,6 +208,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    container_name: airflow-scheduler
     command: scheduler
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
@@ -219,6 +225,7 @@ services:
 
   airflow-worker:
     <<: *airflow-common
+    container_name: airflow-worker
     command: celery worker
     healthcheck:
       test:
@@ -240,6 +247,7 @@ services:
 
   airflow-triggerer:
     <<: *airflow-common
+    container_name: airflow-triggerer
     command: triggerer
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
@@ -256,6 +264,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    container_name: airflow-init
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
     command:
@@ -334,6 +343,7 @@ services:
   # for debugg only
   airflow-cli:
     <<: *airflow-common
+    container_name: airflow-client
     profiles:
       - debug
     environment:
@@ -347,6 +357,7 @@ services:
 
   airflow-flower:
     <<: *airflow-common
+    container_name: airflow-flower
     command: celery flower
     expose:
       - 5555
@@ -364,9 +375,9 @@ services:
         condition: service_completed_successfully
 
   jupyter-notebook:
-    image: jupyter/all-spark-notebook
-    command:  "start-notebook.sh \
-      --NotebookApp.password=${JUPYTER_TOKEN}"
+    image: jupyter-spark
+    container_name: jupyter-spark
+    command: bash -c "start-notebook.sh --NotebookApp.password=${JUPYTER_TOKEN} "
     user: root
     ports:
       - 8888:8888
@@ -374,14 +385,16 @@ services:
       <<: *airflow-common-env
       JUPYTER_TOKEN: ${JUPYTER_TOKEN}
       DBT_POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
-      DBT_POSTGRES_USER : ${DBT_POSTGRES_USER}
-      DBT_POSTGRES_DB : ${DBT_POSTGRES_DB}
-      DBT_DBT_SCHEMA: ${DBT_DBT_SCHEMA}
-      DBT_DBT_RAW_DATA_SCHEMA: ${DBT_DBT_RAW_DATA_SCHEMA}
+      DBT_POSTGRES_USER: ${DBT_POSTGRES_USER}
+      DBT_POSTGRES_DB: ${DBT_POSTGRES_DB}
+      DBT_SCHEMA: ${DBT_DBT_SCHEMA}
+      DBT_RAW_DATA_SCHEMA: ${DBT_DBT_RAW_DATA_SCHEMA}
       DBT_POSTGRES_HOST: ${DBT_POSTGRES_HOST}
-      TZ: "Asia/Hong_Kong"
+      NB_USER: ${NB_USER}
+      GRANT_SUDO: 'yes'
       CHOWN_HOME: 'yes'
       CHOWN_HOME_OPTS: -R      
+      TZ: "Asia/Hong_Kong"
     restart: always
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8888/"]
@@ -393,6 +406,7 @@ services:
 
   spark-master:
     image: spark-master
+    hostname: spark-master
     container_name: spark-master
     environment:
       <<: *spark-common-env
@@ -400,8 +414,9 @@ services:
       - ${SPARK_MASTER_PORT}:${SPARK_MASTER_PORT}
       - ${SPARK_MASTER_WEBUI_PORT}:${SPARK_MASTER_WEBUI_PORT}
       - ${SPARK_THRIFT_PORT}:${SPARK_THRIFT_PORT}
+      - ${SPARK_UI_PORT}:${SPARK_UI_PORT}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost: ${SPARK_MASTER_WEBUI_PORT}"]
+      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_MASTER_WEBUI_PORT}"]
       interval: 5s
       retries: 5
     restart: always
@@ -411,11 +426,12 @@ services:
   
   spark-worker-1:
     image: spark-worker
+    hostname: spark-worker-1
     container_name: spark-worker-1
     environment:
       <<: *spark-common-env
-      SPARK_WORKER_CORES: 1
-      SPARK_WORKER_MEMORY: 64m
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1G
     expose:
       - ${SPARK_WORKER_PORT}
     healthcheck:
@@ -432,11 +448,12 @@ services:
   
   spark-worker-2:
     image: spark-worker
+    hostname: spark-worker-2
     container_name: spark-worker-2
     environment:
       <<: *spark-common-env
-      SPARK_WORKER_CORES: 1
-      SPARK_WORKER_MEMORY: 64m
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1G
     expose:
       - ${SPARK_WORKER_PORT}
     healthcheck:
@@ -450,7 +467,22 @@ services:
     depends_on:
       spark-master:
         condition: service_healthy
-        
+
+  hadoop-service:
+    image: hadoop
+    container_name: hadoop-service
+    hostname: hadoop-service
+    environment:
+      <<: *spark-common-env
+      HADOOP_HOME: ${HADOOP_HOME}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      interval: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - ./sample_data:/sample/:ro
+      - ./logs:${HADOOP_HOME}/logs:consistent          
 volumes:
   pg-airflow-volume:
     name: "pgdb-airflow"
