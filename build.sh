@@ -36,7 +36,7 @@ else
 		docker build -f ./dockerfile/dockerfile_sparkmaster-t spark-master:3.2.1 -t spark-master:latest .
 	fi
 
-	if [[ "$(docker images -q spark-workder:latest 2> /dev/null)" == "" ]]; then
-		docker build -f ./dockerfile/dockerfile_sparkworkder -t spark-workder:3.2.1 -t spark-workder:latest .
+	if [[ "$(docker images -q spark-worker:latest 2> /dev/null)" == "" ]]; then
+		docker build -f ./dockerfile/dockerfile_sparkworker -t spark-worker:3.2.1 -t spark-worker:latest .
 	fi
 fi
