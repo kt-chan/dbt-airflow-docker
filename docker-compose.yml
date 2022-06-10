@@ -469,7 +469,7 @@ services:
         condition: service_healthy
 
   hadoop-service:
-    image: hadoop
+    image: hadoop-service
     container_name: hadoop-service
     hostname: hadoop-service
     environment:
