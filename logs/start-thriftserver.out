@@ -9,3 +9,4 @@ starting org.apache.spark.sql.hive.thriftserver.HiveThriftServer2, logging to /u
 starting org.apache.spark.sql.hive.thriftserver.HiveThriftServer2, logging to /usr/bin/spark-3.2.1-bin-hadoop3.2/logs/spark--org.apache.spark.sql.hive.thriftserver.HiveThriftServer2-1-2b1f213c922c.out
 starting org.apache.spark.sql.hive.thriftserver.HiveThriftServer2, logging to /usr/bin/spark-3.2.1-bin-hadoop3.2/logs/spark--org.apache.spark.sql.hive.thriftserver.HiveThriftServer2-1-ce44350f7e33.out
 starting org.apache.spark.sql.hive.thriftserver.HiveThriftServer2, logging to /usr/bin/spark-3.2.1-bin-hadoop3.2/logs/spark--org.apache.spark.sql.hive.thriftserver.HiveThriftServer2-1-spark-master.out
+starting org.apache.spark.sql.hive.thriftserver.HiveThriftServer2, logging to /usr/bin/spark-3.2.1-bin-hadoop3.2/logs/spark--org.apache.spark.sql.hive.thriftserver.HiveThriftServer2-1-spark-master.out
