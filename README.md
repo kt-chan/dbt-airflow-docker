@@ -6,6 +6,9 @@ For more Data & Analytics related reading, check https://analyticsmayhem.com
 ## Requirements 
 * Install [Docker](https://www.docker.com/products/docker-desktop)
 * Install [Docker Compose](https://docs.docker.com/compose/install/)
+*   #curl https://github.com/docker/compose/releases/download/v2.6.0/docker-compose-linux-x86_64 -o "/usr/bin/docker-compose"
+*   #chmod +x /usr/bin/docker-compose
+*   
 * Download the [Kaggle Instacart eCommerce dataset](https://www.kaggle.com/c/instacart-market-basket-analysis/data) 
 
 ## Dataset
