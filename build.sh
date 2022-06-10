@@ -33,7 +33,7 @@ else
 	fi
 
 	if [[ "$(docker images -q spark-master:latest 2> /dev/null)" == "" ]]; then
-		docker build -f ./dockerfile/dockerfile_sparkmaster-t spark-master:3.2.1 -t spark-master:latest .
+		docker build -f ./dockerfile/dockerfile_sparkmaster -t spark-master:3.2.1 -t spark-master:latest .
 	fi
 
 	if [[ "$(docker images -q spark-worker:latest 2> /dev/null)" == "" ]]; then
