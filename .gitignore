@@ -9,3 +9,4 @@ bak
 .gitkeep
 gitpush.sh
 logs/*
+airflow/logs/*
