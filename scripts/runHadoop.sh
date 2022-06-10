@@ -16,7 +16,7 @@ sed -i -e "s/localhost/$HOSTNAME/g"  $HADOOP_HOME/etc/hadoop/core-site.xml
 
 sleep 10
 
-hdfs dfs -mkdir /data
-hdfs dfs -put /sample/*.csv /data/.
+hdfs dfs -mkdir -p /data
+hdfs dfs -put -f /sample/*.csv /data/.
 
 tail -f /dev/null
