@@ -8,4 +8,4 @@ sample_data/*
 bak
 .gitkeep
 gitpush.sh
-logs
+logs/*
