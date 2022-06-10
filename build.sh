@@ -28,8 +28,8 @@ else
 		docker build -f ./dockerfile/dockerfile_jupyter -t jupyter-spark:3.2.1 -t jupyter-spark:latest .
 	fi
 
-	if [[ "$(docker images -q sparkbase:latest 2> /dev/null)" == "" ]]; then
-		docker build -f ./dockerfile/dockerfile_sparkbase -t sparkbase:3.2.1 -t sparkbase:latest .
+	if [[ "$(docker images -q spark-base:latest 2> /dev/null)" == "" ]]; then
+		docker build -f ./dockerfile/dockerfile_sparkbase -t spark-base:3.2.1 -t spark-base:latest .
 	fi
 
 	if [[ "$(docker images -q spark-master:latest 2> /dev/null)" == "" ]]; then
