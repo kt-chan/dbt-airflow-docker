@@ -17,6 +17,7 @@ The user story for analytic example is available here: https://rpubs.com/MohabDi
 ## Setup 
 * Clone the repository
 * Extract the CSV files within ./sample_data directory (files are needed as seed data)
+* Run ./build.sh force
 
 Change directory within the repository and run `docker-compose up`. This will perform the following:
 * Based on the definition of [`docker-compose.yml`](https://github.com/konosp/dbt-airflow-docker-compose/blob/master/docker-compose.yml) will download the necessary images to run the project. This includes the following services:
