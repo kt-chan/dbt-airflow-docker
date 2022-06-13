@@ -1,4 +1,4 @@
-default:
+Postgres:
   target: dev
   outputs:
     dev:
@@ -11,16 +11,15 @@ default:
       schema: dbt
       threads: 4
 
-spark:
-  target: local
+Spark:
+  target: dev
   outputs:
-    local:
+    dev:
       type: spark
       method: thrift
       host: spark-master
       port: 10000
-      user: hive
-      schema: dbtdb
+      schema: sample
       connect_retries: 5
       connect_timeout: 60
       retry_all: true

@@ -66,10 +66,10 @@ x-airflow-common:
     AIRFLOW_CONN_DBT_SSH_CONN:  ssh://${DBT_SSH_HOST}:${DBT_SSH_PORT}?conn_timeout=10&compress=false&no_host_key_check=true&allow_host_key_change=true&key_file=${SSH_KEY_FILE}
     TZ: "Asia/Hong_Kong"
   volumes:
+    - ~/.ssh:/root/.ssh:ro
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/plugins:/opt/airflow/plugins
-    - ./scripts:$AIRFLOW_HOME/init-scripts
     - ./dbt:/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
@@ -144,8 +144,8 @@ services:
     environment:
       DBT_HOME: /dbt
       DBT_POSTGRES_PASSWORD: ${DBT_POSTGRES_PASSWORD}
-      DBT_POSTGRES_USER : ${DBT_POSTGRES_USER}
-      DBT_POSTGRES_DB : ${DBT_POSTGRES_DB}
+      DBT_POSTGRES_USER: ${DBT_POSTGRES_USER}
+      DBT_POSTGRES_DB: ${DBT_POSTGRES_DB}
       DBT_DBT_SCHEMA: ${DBT_DBT_SCHEMA}
       DBT_DBT_RAW_DATA_SCHEMA: ${DBT_DBT_RAW_DATA_SCHEMA}
       DBT_POSTGRES_HOST: ${DBT_POSTGRES_HOST}
@@ -165,6 +165,10 @@ services:
       postgres-airflow:
         condition: service_healthy
       postgres-dbt:
+        condition: service_healthy
+      hadoop-service:
+        condition: service_healthy
+      spark-master:
         condition: service_healthy
 
   redis:
@@ -189,7 +193,7 @@ services:
     command:
       - -c
       - |
-        /bin/sh -c "$AIRFLOW_HOME/init-scripts/airflow_init.sh" 
+        /bin/sh -c "$AIRFLOW_HOME/init-scripts/run.sh" 
         exec /entrypoint airflow webserver
     environment:
       <<: *airflow-common-env
