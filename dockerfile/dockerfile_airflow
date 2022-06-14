@@ -10,10 +10,10 @@ RUN pip install --user apache-airflow-providers-postgres==4.1.0 && \
 	pip install --user apache-airflow-providers-apache-hive==3.0.0
 
 ## Required library for pyhive 
-RUN pip install --user sqlalchemy
-	pip install --user pyhive
-	pip install --user thrift
-	pip install --user sasl
+RUN pip install --user sqlalchemy  && \
+	pip install --user pyhive  && \
+	pip install --user thrift  && \
+	pip install --user sasl  && \
 	pip install --user thrift-sasl 
 
 ## # Authorize SSH Host
