@@ -19,7 +19,7 @@ RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
-COPY scripts/dbt_init.sh /root/init.sh
+ADD scripts/dbt_init.sh /root/init.sh
 RUN chmod +x /root/init.sh
 
 ENTRYPOINT [ "/root/init.sh" ]

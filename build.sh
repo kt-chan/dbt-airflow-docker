@@ -3,7 +3,7 @@
 if [[ (! -z "$1") &&  ("$1" == "force") ]]; then
 
 	docker build -f ./dockerfile/dockerfile_airflow -t airflow:2.3.0 -t airflow:latest .
-	docker build -f ./dockerfile/dockerfile_airflow -t airflow:2.3.0 -t airflow:latest .
+	docker build -f ./dockerfile/dockerfile_dbt -t dbt-service:1.1.0 -t dbt-service:latest .
 	docker build -f ./dockerfile/dockerfile_hadoop -t hadoop-service:3.2.3 -t hadoop-service:latest .
 	docker build -f ./dockerfile/dockerfile_jupyter -t jupyter-spark:3.2.1 -t jupyter-spark:latest .
 	docker build -f ./dockerfile/dockerfile_sparkbase -t spark-base:3.2.1 -t spark-base:latest .

@@ -30,4 +30,10 @@ RUN rm spark.tgz
 # Prepare dirs
 RUN mkdir -p /tmp/logs/ && chmod a+w /tmp/logs/ && mkdir /app && chmod a+rwx /app && mkdir /data && chmod a+rwx /data
 RUN mkdir -p ${SHARED_WORKSPACE}
+
+# update spark-default.conf
+
+RUN cp $SPARK_HOME/conf/spark-defaults.conf.template $SPARK_HOME/conf/spark-defaults.conf
+RUN echo "spark.sql.warehouse.dir hdfs://hadoop-service:9000/user/hive/warehouse" >> $SPARK_HOME/conf/spark-defaults.conf
+
 VOLUME ${SHARED_WORKSPACE}
