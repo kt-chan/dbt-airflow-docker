@@ -3,11 +3,11 @@ config-version: 2
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'sample_dbt_models'
+name: 'instacart_dbt_models'
 version: '1.0.0'
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'Spark'
+profile: 'spark'
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
@@ -36,7 +36,12 @@ vars:
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
-    sample_dbt_models:
+    instacart_dbt_models:
+        materialized: table
+        daily:
+            materialized: incremental
+            tags: daily
+        initialisation:
+            tags: init-once
         core:
-            materialized: table
             tags: snapshot

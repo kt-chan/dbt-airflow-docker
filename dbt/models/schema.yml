@@ -1,9 +1,14 @@
 version: 2
 
 sources:
-  - name: sample_data
-    # no database setup for spark
+  - name: instacart_raw_data
+    # no database on sparksql
+    # database: dbtdb 
     schema: sample
     tables:
-      - name: employee
-      
+      - name: aisles
+      - name: departments
+      - name: orders
+      - name: products
+      - name: order_products__train
+      - name: order_products__prior
