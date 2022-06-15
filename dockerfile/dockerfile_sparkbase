@@ -33,6 +33,6 @@ RUN mkdir -p ${SHARED_WORKSPACE}
 
 # update spark-default.conf
 
-COPY ./conf/spark-default.conf $SPARK_HOME/conf/spark-default.conf
+COPY ./conf/spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 
 VOLUME ${SHARED_WORKSPACE}
