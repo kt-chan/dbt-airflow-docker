@@ -33,7 +33,6 @@ RUN mkdir -p ${SHARED_WORKSPACE}
 
 # update spark-default.conf
 
-RUN cp $SPARK_HOME/conf/spark-defaults.conf.template $SPARK_HOME/conf/spark-defaults.conf
-RUN echo "spark.sql.warehouse.dir hdfs://hadoop-service:9000/user/hive/warehouse" >> $SPARK_HOME/conf/spark-defaults.conf
+COPY ./conf/spark-default.conf $SPARK_HOME/conf/spark-default.conf
 
 VOLUME ${SHARED_WORKSPACE}

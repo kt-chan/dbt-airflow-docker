@@ -26,5 +26,10 @@
         <name>dfs.permissions</name>
         <value>false</value>
     </property>
+
+    <property>
+        <name>fs.hdfs.impl.disable.cache</name>
+        <value>true</value>
+    </property>
 </configuration>
 
