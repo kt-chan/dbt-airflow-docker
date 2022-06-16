@@ -435,7 +435,6 @@ services:
         condition: service_healthy
     volumes:
       - shared-workspace:/opt/workspace
-      - ./logs:${SPARK_HOME}/logs:consistent
   
   spark-worker-1:
     image: spark-worker
@@ -454,7 +453,6 @@ services:
     restart: always
     volumes:
       - shared-workspace:/opt/workspace
-      - ./logs:${SPARK_HOME}/logs:consistent
     depends_on:
       spark-master:
         condition: service_healthy
@@ -476,7 +474,6 @@ services:
     restart: always
     volumes:
       - shared-workspace:/opt/workspace
-      - ./logs:${SPARK_HOME}/logs:consistent
     depends_on:
       spark-master:
         condition: service_healthy
@@ -495,7 +492,6 @@ services:
     restart: always
     volumes:
       - ./sample_data:/sample/:ro
-      - ./logs:${HADOOP_HOME}/logs:consistent          
 volumes:
   pg-airflow-volume:
     name: "pgdb-airflow"

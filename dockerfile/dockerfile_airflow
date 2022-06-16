@@ -16,17 +16,6 @@ RUN pip install --user sqlalchemy  && \
 	pip install --user sasl  && \
 	pip install --user thrift-sasl 
 
-## # Authorize SSH Host
-
-## RUN mkdir -p /home/airflow/.ssh
-## RUN chmod 700 /home/airflow/.ssh
-## 
-## COPY ./key/id_rsa  /home/airflow/.ssh/id_rsa
-## RUN chown -R airflow /home/airflow/.ssh
-## RUN chmod 600 /home/airflow/.ssh/id_rsa
-## 
-## COPY ./key/id_rsa  /root/.ssh/id_rsa
-## RUN chmod 600 /root/.ssh/id_rsa
 
 USER root
 ADD ./scripts/airflow_init.sh $AIRFLOW_HOME/init-scripts/run.sh
