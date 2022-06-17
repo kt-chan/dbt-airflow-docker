@@ -63,7 +63,7 @@ x-airflow-common:
     #Database CONNECTIONs
     AIRFLOW_CONN_DBT_POSTGRESQL_CONN: "postgresql://${DBT_POSTGRES_USER}:${DBT_POSTGRES_PASSWORD}@${DBT_POSTGRES_HOST}:${DBT_POSTGRES_PORT}/${DBT_POSTGRES_DB}"
     #Spark Thrift CONDITIONS
-    AIRFLOW_CONN_SPARK_CONN: "hiveserver2://${SPARK_MASTER_HOST}:${SPARK_THRIFT_PORT}/default"
+    AIRFLOW_CONN_SPARK_CONN: "hiveserver2://${SPARK_THRIFT_HOST}:${SPARK_THRIFT_PORT}/default"
     #DBT RPC CONNECTIONs
     AIRFLOW_CONN_DBT_SSH_CONN:  ssh://${DBT_SSH_HOST}:${DBT_SSH_PORT}?conn_timeout=10&compress=false&no_host_key_check=true&allow_host_key_change=true&key_file=${SSH_KEY_FILE}
     TZ: "Asia/Hong_Kong"
@@ -91,10 +91,17 @@ x-spark-common:
     &spark-common-env
     user: "${SPARK_UID:-50000}:0"
     SPARK_HOME: ${SPARK_HOME}
+    SPARK_MASTER_HOST: ${SPARK_MASTER_HOST}
     SPARK_MASTER_PORT: ${SPARK_MASTER_PORT}
     SPARK_MASTER_WEBUI_PORT: ${SPARK_MASTER_WEBUI_PORT}
     SPARK_UI_PORT: ${SPARK_UI_PORT}
+    SPARK_THRIFT_HOST: ${SPARK_THRIFT_HOST}
     SPARK_THRIFT_PORT: ${SPARK_THRIFT_PORT}
+    SPARK_DAEMON_MEMORY: ${SPARK_DAEMON_MEMORY}
+    SPARK_DRIVER_MEMORY: ${SPARK_DRIVER_MEMORY}
+    SPARK_DRIVER_CORES: ${SPARK_DRIVER_CORES}
+    SPARK_EXECUTOR_MEMORY: ${SPARK_EXECUTOR_MEMORY}
+    SPARK_EXECUTOR_CORES: ${SPARK_EXECUTOR_CORES}
     TZ: "Asia/Hong_Kong"
 
 services:
@@ -406,6 +413,15 @@ services:
       CHOWN_HOME_OPTS: -R      
       TZ: "Asia/Hong_Kong"
     restart: always
+    depends_on:
+      spark-thrift:
+        condition: service_healthy
+      spark-master:
+        condition: service_healthy
+      spark-worker-1:
+        condition: service_healthy
+      spark-worker-2:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8888/"]
       interval: 10s
@@ -423,8 +439,6 @@ services:
     ports:
       - ${SPARK_MASTER_PORT}:${SPARK_MASTER_PORT}
       - ${SPARK_MASTER_WEBUI_PORT}:${SPARK_MASTER_WEBUI_PORT}
-      - ${SPARK_THRIFT_PORT}:${SPARK_THRIFT_PORT}
-      - ${SPARK_UI_PORT}:${SPARK_UI_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SPARK_MASTER_WEBUI_PORT}"]
       interval: 5s
@@ -435,6 +449,30 @@ services:
         condition: service_healthy
     volumes:
       - shared-workspace:/opt/workspace
+      
+  spark-thrift:
+    image: spark-thrift
+    hostname: spark-thrift
+    container_name: spark-thrift
+    environment:
+      <<: *spark-common-env
+    ports:
+      - ${SPARK_THRIFT_PORT}:${SPARK_THRIFT_PORT}
+      - ${SPARK_UI_PORT}:${SPARK_UI_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_THRIFT_PORT}"]
+      interval: 5s
+      retries: 5
+    restart: always
+    depends_on:
+      spark-master:
+        condition: service_healthy
+      spark-worker-1:
+        condition: service_healthy
+      spark-worker-2:
+        condition: service_healthy
+    volumes:
+      - shared-workspace:/opt/workspace
   
   spark-worker-1:
     image: spark-worker
@@ -442,8 +480,6 @@ services:
     container_name: spark-worker-1
     environment:
       <<: *spark-common-env
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 1G
     expose:
       - ${SPARK_WORKER_PORT}
     healthcheck:
@@ -463,8 +499,6 @@ services:
     container_name: spark-worker-2
     environment:
       <<: *spark-common-env
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 1G
     expose:
       - ${SPARK_WORKER_PORT}
     healthcheck:

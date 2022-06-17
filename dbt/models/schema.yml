@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: instacart_raw_data
+  - name: instacart_raw
     # no database on sparksql
     # database: dbtdb 
     schema: sample

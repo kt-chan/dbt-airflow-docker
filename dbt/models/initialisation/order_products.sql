@@ -1,15 +1,11 @@
 with v_orderprodcts as (
-    select *
-    from {{ source('instacart_raw_data', 'order_products__prior') }}
-    UNION 
-    select *
-    from {{ source('instacart_raw_data', 'order_products__train') }}
+    select * from  {{ ref('order_products_union') }}
 ), v_products as (
-    select * from  {{ source('instacart_raw_data', 'products') }}
+    select * from  {{ source('instacart_raw', 'products') }}
 ), v_aisles as (
-    select * from  {{ source('instacart_raw_data', 'aisles') }}
+    select * from  {{ source('instacart_raw', 'aisles') }}
 ), v_departments as (
-    select * from  {{ source('instacart_raw_data', 'departments') }}
+    select * from  {{ source('instacart_raw', 'departments') }}
 ) select t1.*, t2.product_name, t3.aisle_id, t3.aisle, t4.department_id, t4.department 
     from v_orderprodcts t1
     left join  v_products t2 on t1.product_id = t2.product_id

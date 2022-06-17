@@ -1,0 +1,8 @@
+FROM spark-base
+
+# Python packages
+RUN pip3 install wget requests datawrangler
+
+WORKDIR ${APP}
+ADD ./scripts/runThrift.sh run.sh
+ENTRYPOINT ["sh", "run.sh"]

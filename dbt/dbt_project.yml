@@ -3,7 +3,7 @@ config-version: 2
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'instacart_dbt_models'
+name: 'instacart'
 version: '1.0.0'
 
 # This setting configures which "profile" dbt uses for this project.
@@ -36,7 +36,8 @@ vars:
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
-    instacart_dbt_models:
+    +file_format: parquet
+    instacart:
         materialized: table
         daily:
             materialized: incremental

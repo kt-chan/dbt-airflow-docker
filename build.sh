@@ -8,6 +8,7 @@ if [[ (! -z "$1") &&  ("$1" == "force") ]]; then
 	docker build -f ./dockerfile/dockerfile_jupyter -t jupyter-spark:3.2.1 -t jupyter-spark:latest .
 	docker build -f ./dockerfile/dockerfile_sparkbase -t spark-base:3.2.1 -t spark-base:latest .
 	docker build -f ./dockerfile/dockerfile_sparkmaster -t spark-master:3.2.1 -t spark-master:latest .
+	docker build -f ./dockerfile/dockerfile_sparkthrift -t spark-thrift:3.2.1 -t spark-thrift:latest .
 	docker build -f ./dockerfile/dockerfile_sparkworker -t spark-worker:3.2.1 -t spark-worker:latest .
 	
 else
@@ -36,6 +37,10 @@ else
 		docker build -f ./dockerfile/dockerfile_sparkmaster -t spark-master:3.2.1 -t spark-master:latest .
 	fi
 
+	if [[ "$(docker images -q spark-thrift:latest 2> /dev/null)" == "" ]]; then
+		docker build -f ./dockerfile/dockerfile_sparkthrift -t spark-thrift:3.2.1 -t spark-thrift:latest .
+	fi
+	
 	if [[ "$(docker images -q spark-worker:latest 2> /dev/null)" == "" ]]; then
 		docker build -f ./dockerfile/dockerfile_sparkworker -t spark-worker:3.2.1 -t spark-worker:latest .
 	fi
