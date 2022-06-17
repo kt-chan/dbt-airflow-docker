@@ -17,6 +17,9 @@ The user story for analytic example is available here:
 2. https://github.com/archd3sai/Instacart-Market-Basket-Analysis
 3. https://asagar60.medium.com/instacart-market-basket-analysis-part-1-introduction-eda-b08fd8250502
 
+## DBT with Spark and Hudi
+https://github.com/apache/hudi/tree/master/hudi-examples/hudi-examples-dbt
+
 ## Setup 
 * Clone the repository
 * Extract the CSV files within ./sample_data directory (files are needed as seed data)
