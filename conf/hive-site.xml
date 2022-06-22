@@ -17,9 +17,84 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
+	
+	<!-- Prevent multi spark process conflict -->
 	<property>
 	  <name>hive.exec.stagingdir</name>
 	  <value>/tmp/hive/spark-${user.name}</value>
 	</property>
+	
+	<property>
+	  <name>hive.metastore.schema.verification</name>
+	  <value>false</value>
+	</property>
+		
+	<!-- 
+		Note that the hive.metastore.warehouse.dir property in hive-site.xml is deprecated since Spark 2.0.0. 
+		Instead, use spark.sql.warehouse.dir to specify the default location of database in warehouse
+		this is already configured under spark-defaults.xml 
+	-->
+	<!-- skip this for now , override by spark-defaults.xml -->
+	<!--
+	<property>
+       <name>hive.metastore.warehouse.dir</name>
+       <value>hdfs://hadoop-service:9000/user/hive/warehouse</value>
+    </property>
+   	<property>
+       <name>spark.sql.warehouse.dir</name>
+       <value>hdfs://hadoop-service:9000/user/hive/warehouse</value>
+    </property>
+   -->
+   
+   	<!-- setting up remote hms database for spark thrift -->
+	<!-- 
+		spark.hadoop.javax.jdo.option.ConnectionURL jdbc:postgresql://postgres-hms:5432/hms?createDatabaseIfNotExist=true
+		spark.hadoop.javax.jdo.option.ConnectionDriverName org.postgresql.Driver
+		spark.hadoop.javax.jdo.option.ConnectionUserName hive
+		spark.hadoop.javax.jdo.option.ConnectionPassword pssd
+		spark.hadoop.datanucleus.fixedDatastore false
+		spark.hadoop.datanucleus.autoCreateSchema true
+		spark.hadoop.datanucleus.schema.autoCreateTables true
+		spark.hadoop.hive.metastore.schema.verification false 
+	-->
+	<property>
+		<name>javax.jdo.option.ConnectionURL</name>
+		<value>jdbc:postgresql://postgres-hms:5432/metastore?createDatabaseIfNotExist=true</value>
+	</property>
+	<property>
+		<name>javax.jdo.option.ConnectionDriverName</name>
+		<value>org.postgresql.Driver</value>
+	</property>
+	<property>
+		<name>javax.jdo.option.ConnectionUserName</name>
+		<value>hive</value>
+	</property>
+		<property>
+		<name>javax.jdo.option.ConnectionPassword</name>
+		<value>pssd</value>
+	</property>
+	<property>
+		<name>datanucleus.fixedDatastore</name>
+		<value>false</value>
+	</property>
+	<property>
+		<name>datanucleus.autoCreateSchema</name>
+		<value>true</value>
+	</property>
+		<property>
+		<name>datanucleus.schema.autoCreateTables</name>
+		<value>true</value>
+	</property>
+	<property>
+		<name>hive.metastore.schema.verification</name>
+		<value>false</value>
+	</property>
+	<!-- this is for using hiveserver2, instead of spark thrift -->
+	<!-- 
+	<property>
+		<name>hive.metastore.uris</name>
+		<value>thrift://localhost:9083</value>
+	</property>
+	 -->
 </configuration>
 

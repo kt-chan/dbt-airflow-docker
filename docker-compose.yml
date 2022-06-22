@@ -142,6 +142,27 @@ services:
       interval: 5s
       retries: 5
     restart: always
+    profiles:
+      - donotstart
+
+  postgres-hms:
+    image: postgres:13
+    container_name: postgres-hms
+    environment:
+      POSTGRES_USER: ${HMS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${HMS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${HMS_POSTGRES_DB}
+      TZ: "Asia/Hong_Kong"
+    expose:
+      - 5432
+    volumes:
+      - pg-hms-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      retries: 5
+    restart: always
+
 
   dbt-service:
     image: dbt-service:1.1.0
@@ -447,6 +468,8 @@ services:
     depends_on:
       hadoop-service:
         condition: service_healthy
+      postgres-hms:
+        condition: service_healthy
     volumes:
       - shared-workspace:/opt/workspace
       
@@ -534,6 +557,9 @@ volumes:
     driver: local
   pg-dbt-volume:
     name: "pgdb-dbt"
+    driver: local
+  pg-hms-volume:
+    name: "pgdb-hms"
     driver: local
   shared-workspace:
     name: "hdfs"
