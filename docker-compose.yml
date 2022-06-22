@@ -526,6 +526,7 @@ services:
     restart: always
     volumes:
       - ./sample_data:/sample/:ro
+      - shared-workspace:/opt/workspace
 volumes:
   pg-airflow-volume:
     name: "pgdb-airflow"
