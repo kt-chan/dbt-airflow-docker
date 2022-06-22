@@ -3,7 +3,7 @@
 cd ${SPARK_HOME}
 
 # Spark 3.2 standard 
-/sbin/start-thriftserver.sh --master spark://$SPARK_MASTER_HOST:$SPARK_MASTER_PORT >> ./logs/start-thriftserver.out & 
+./sbin/start-thriftserver.sh --master spark://$SPARK_MASTER_HOST:$SPARK_MASTER_PORT >> ./logs/start-thriftserver.out & 
 
 ## # Spark 3.2 with hudi table [this does not work for spark thrift sql]
 ## ./bin/spark-submit --master spark://$SPARK_MASTER_HOST:$SPARK_MASTER_PORT \
