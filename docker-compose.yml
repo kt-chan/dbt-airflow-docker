@@ -462,7 +462,8 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SPARK_THRIFT_PORT}"]
       interval: 5s
-      retries: 5
+      start_period: 60s
+      retries: 3
     restart: always
     depends_on:
       spark-master:
