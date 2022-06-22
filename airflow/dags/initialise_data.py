@@ -14,23 +14,13 @@ from sqlalchemy import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.schema import *
 
-# jdbc execution
-def jdbc_setup(cmd=None, **kwargs):
-    hiveConn = HiveServer2Hook(hiveserver2_conn_id='spark_thrift_sample')
-    try:
-        hiveEngine = create_engine(hiveConn.get_uri().replace("hiveserver2", "hive"))
-        pd.read_sql(cmd,con=hiveEngine)
-        return True
-    except sqlalchemy.exc.OperationalError as e:
-        logging.error('Error occured while executing a query {}'.format(e.args))
-        raise Exception("Error Returned!")
-        return False
 
 def jdbc_query(cmd=None, **kwargs):
     hiveConn = HiveServer2Hook(hiveserver2_conn_id='spark_thrift_sample')
     try:
-        hiveEngine = create_engine(hiveConn.get_uri().replace("hiveserver2", "hive"))
-        pd.read_sql(cmd,con=hiveEngine)
+        hiveEngine = create_engine(hiveConn.get_uri().replace("hiveserver2", "hive")).connect()
+        pd.read_sql_query(cmd,con=hiveEngine)
+        hiveEngine.close()
     except sqlalchemy.exc.OperationalError as e:
         logging.error('Error occured while executing a query {}'.format(e.args))
         raise Exception("Error Returned!")
@@ -55,7 +45,7 @@ load_initial_data_dag = DAG(
 )
 
 t1 = PythonOperator(task_id='create_schema',
-                      python_callable=jdbc_setup,
+                      python_callable=jdbc_query,
                       op_kwargs={'cmd': "CREATE DATABASE IF NOT EXISTS sample;"},
                       dag=load_initial_data_dag)
 
