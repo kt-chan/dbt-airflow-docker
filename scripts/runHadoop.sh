@@ -19,4 +19,4 @@ hdfs dfs -mkdir -p /data
 hdfs dfs -mkdir -p /user/hive/warehouse
 hdfs dfs -put -f /sample/* /data/.
 
-tail -f /dev/null
+tail -f $HADOOP_HOME/logs/hadoop-hdfs-namenode-hadoop-service.log

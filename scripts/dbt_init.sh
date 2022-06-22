@@ -10,8 +10,11 @@ cd /dbt
 # dbt docs generate 
 dbt docs serve --port 8081 & 
 
-# Wait for any process to exit
-wait -n
-  
-# Exit with status of process that exited first
-exit $?
+## # Wait for any process to exit
+## wait -n
+##   
+## # Exit with status of process that exited first
+## exit $?
+
+## testing for log output
+tail -f /dbt/logs/dbt.log

@@ -14,4 +14,4 @@ cd ${SPARK_HOME}
 ## --conf 'spark.sql.catalog.spark_catalog=org.apache.spark.sql.hudi.catalog.HoodieCatalog'
 
 
-tail -f /dev/null
+tail -f /tmp/logs/start-thriftserver.out
