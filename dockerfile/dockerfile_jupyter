@@ -1,7 +1,7 @@
 FROM jupyter/all-spark-notebook:spark-3.2.1
 
 USER root
-RUN apt-get update &&  apt-get install -y apt-utils sasl2-bin libsasl2-2 libsasl2-dev libsasl2-modules libsasl2-modules-gssapi-mit
+RUN apt-get update &&  apt-get install -y apt-utils sasl2-bin libsasl2-2 libsasl2-dev libsasl2-modules libsasl2-modules-gssapi-mit libpq-dev python-dev
 
 USER jovyan 
 RUN pip install --upgrade pip wheel setuptools
@@ -9,4 +9,5 @@ RUN pip install sqlalchemy    && \
     pip install pyhive        && \
     pip install thrift        && \
     pip install sasl          && \
-    pip install thrift-sasl   
+    pip install thrift-sasl   && \
+	pip install psycopg2

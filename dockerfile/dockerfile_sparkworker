@@ -1,5 +1,5 @@
 FROM spark-base
 
-WORKDIR ${APP}
+WORKDIR ${SPARK_HOME}
 ADD ./scripts/runWorker.sh run.sh
 ENTRYPOINT ["sh", "run.sh"]

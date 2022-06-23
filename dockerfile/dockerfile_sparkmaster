@@ -6,6 +6,6 @@ RUN pip3 install wget requests datawrangler
 ## # Get Livy, skip for now
 ## RUN wget https://archive.apache.org/dist/incubator/livy/0.7.1-incubating/apache-livy-0.7.1-incubating-bin.zip -O livy.zip && unzip livy.zip -d /usr/bin/
 
-WORKDIR ${APP}
+WORKDIR ${SPARK_HOME}
 ADD ./scripts/runMaster.sh run.sh
 ENTRYPOINT ["sh", "run.sh"]

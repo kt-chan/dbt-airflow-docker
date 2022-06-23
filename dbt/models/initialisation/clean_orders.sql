@@ -1,3 +1,12 @@
+{{
+    config(
+        materialized='incremental',
+        file_format='hudi',
+        unique_key='order_id'
+    )
+}}
+
+
 with initial_dates as (
     -- Initialise with Monday, Jan 6th 2019 as the first day
     select *
@@ -24,3 +33,4 @@ select
     , days_since_prior_order_cum
     , date_trunc('day', first_order + days_since_prior_order_cum * INTERVAL '1 day') + ( order_hour_of_day * INTERVAL '1 hour' ) as order_date
 from cumulative_dates
+where order_id is not null

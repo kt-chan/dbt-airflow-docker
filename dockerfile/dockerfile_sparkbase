@@ -1,17 +1,16 @@
-FROM debian:stretch
+FROM ubuntu:18.04
 
-ENV SparkVersion=3.2.1
-ENV HadoopVersion=3.2
-ENV JAVA_HOME=/usr
-ENV SPARK_HOME=/usr/bin/spark-${SparkVersion}-bin-hadoop${HadoopVersion}
-ENV PATH=$SPARK_HOME:$PATH:/bin:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
-ENV PYSPARK_PYTHON=/usr/bin/python
-ENV PYTHONPATH=$SPARK_HOME/python:$PYTHONPATH
+ARG OPENJDK_VERSION=8
+ARG BUILD_DATE
+ARG SPARK_VERSION=3.0.3
+ARG HADOOP_VERSION=3.2
 
-ENV SPARK_MASTER_HOST=spark-master
-
-ENV APP=/app
-ENV SHARED_WORKSPACE=/opt/workspace
+LABEL org.label-schema.name="Apache Spark ${SPARK_VERSION}" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.version=$SPARK_VERSION      
+      
+ENV SPARK_HOME /usr/spark
+ENV PATH="/usr/spark/bin:/usr/spark/sbin:${PATH}"
 
 # System packages
 RUN apt-get clean && apt-get update -y
@@ -19,26 +18,30 @@ RUN apt-get install -y python3 python3-pip curl wget unzip procps openjdk-8-jdk 
   ln -s /usr/bin/python3 /usr/bin/python && \
   rm -rf /var/lib/apt/lists/*
 
+
+RUN apt-get install -y wget procps libpostgresql-jdbc-java 
+
+RUN wget -q "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
+
+RUN tar xzf "spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" && \
+    rm "spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" && \
+    mv "spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}" $SPARK_HOME && \
+	apt-get clean
+
+RUN ln -s /usr/share/java/postgresql-jdbc4.jar /usr/spark/jars/postgresql-jdbc4.jar
+    
+
 # Add User
 RUN useradd -m hdfs && echo "hdfs:supergroup" | chpasswd && adduser hdfs sudo && echo "hdfs     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN useradd -m hive && echo "hive:supergroup" | chpasswd && adduser hive sudo && echo "hive     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN useradd -m spark && echo "spark:supergroup" | chpasswd && adduser spark sudo && echo "spark     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Install Spark
-RUN curl https://dlcdn.apache.org/spark/spark-${SparkVersion}/spark-${SparkVersion}-bin-hadoop${HadoopVersion}.tgz -o spark.tgz 
-RUN tar -xvzf spark.tgz 
-RUN mv spark-${SparkVersion}-bin-hadoop${HadoopVersion} /usr/bin/ 
-RUN mkdir /usr/bin/spark-${SparkVersion}-bin-hadoop${HadoopVersion}/logs 
-RUN chown root:root -R $SPARK_HOME
-RUN rm spark.tgz
 
 # Prepare dirs
 RUN mkdir -p /tmp/logs/ && chmod a+w /tmp/logs/ && mkdir /app && chmod a+rwx /app && mkdir /data && chmod a+rwx /data
-RUN mkdir -p ${SHARED_WORKSPACE}
 
 # update spark-default.conf
 COPY ./conf/spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 COPY ./conf/hdfs-site.xml $SPARK_HOME/conf/hdfs-site.xml
 COPY ./conf/hive-site.xml $SPARK_HOME/conf/hive-site.xml
 
-VOLUME ${SHARED_WORKSPACE}

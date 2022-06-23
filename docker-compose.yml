@@ -80,8 +80,6 @@ x-airflow-common:
       condition: service_healthy
     postgres-airflow:
       condition: service_healthy
-    postgres-dbt:
-      condition: service_healthy
     dbt-service:
       condition: service_healthy
 
@@ -142,8 +140,6 @@ services:
       interval: 5s
       retries: 5
     restart: always
-    profiles:
-      - donotstart
 
   postgres-hms:
     image: postgres:13
@@ -190,19 +186,11 @@ services:
       retries: 5    
     restart: always
     depends_on:
-      redis:
-        condition: service_healthy
-      postgres-airflow:
-        condition: service_healthy
       postgres-dbt:
         condition: service_healthy
       hadoop-service:
         condition: service_healthy
-      spark-master:
-        condition: service_healthy
-      spark-worker-1:
-        condition: service_healthy
-      spark-worker-2:
+      spark-thrift:
         condition: service_healthy
 
   redis:
@@ -437,12 +425,6 @@ services:
     depends_on:
       spark-thrift:
         condition: service_healthy
-      spark-master:
-        condition: service_healthy
-      spark-worker-1:
-        condition: service_healthy
-      spark-worker-2:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8888/"]
       interval: 10s
@@ -470,8 +452,8 @@ services:
         condition: service_healthy
       postgres-hms:
         condition: service_healthy
-    volumes:
-      - shared-workspace:/opt/workspace
+    profiles:
+      - donotstart
       
   spark-thrift:
     image: spark-thrift
@@ -489,14 +471,9 @@ services:
       retries: 3
     restart: always
     depends_on:
-      spark-master:
-        condition: service_healthy
-      spark-worker-1:
-        condition: service_healthy
-      spark-worker-2:
-        condition: service_healthy
-    volumes:
-      - shared-workspace:/opt/workspace
+        postgres-hms: 
+            condition: service_healthy
+
   
   spark-worker-1:
     image: spark-worker
@@ -511,12 +488,12 @@ services:
       interval: 5s
       retries: 5
     restart: always
-    volumes:
-      - shared-workspace:/opt/workspace
     depends_on:
       spark-master:
         condition: service_healthy
-  
+    profiles:
+      - donotstart
+      
   spark-worker-2:
     image: spark-worker
     hostname: spark-worker-2
@@ -530,12 +507,12 @@ services:
       interval: 5s
       retries: 5
     restart: always
-    volumes:
-      - shared-workspace:/opt/workspace
     depends_on:
       spark-master:
         condition: service_healthy
-
+    profiles:
+      - donotstart
+      
   hadoop-service:
     image: hadoop-service
     container_name: hadoop-service
@@ -550,7 +527,7 @@ services:
     restart: always
     volumes:
       - ./sample_data:/sample/:ro
-      - shared-workspace:/opt/workspace
+      
 volumes:
   pg-airflow-volume:
     name: "pgdb-airflow"
@@ -561,7 +538,5 @@ volumes:
   pg-hms-volume:
     name: "pgdb-hms"
     driver: local
-  shared-workspace:
-    name: "hdfs"
-    driver: local
+
 

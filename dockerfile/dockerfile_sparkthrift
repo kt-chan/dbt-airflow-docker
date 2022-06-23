@@ -1,8 +1,7 @@
 FROM spark-base
 
-# Python packages
-RUN pip3 install wget requests datawrangler
-
-WORKDIR ${APP}
+WORKDIR ${SPARK_HOME}
 ADD ./scripts/runThrift.sh run.sh
+RUN chmod a+x run.sh
+
 ENTRYPOINT ["sh", "run.sh"]
