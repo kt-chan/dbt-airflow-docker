@@ -44,4 +44,5 @@ RUN mkdir -p /tmp/logs/ && chmod a+w /tmp/logs/ && mkdir /app && chmod a+rwx /ap
 COPY ./conf/spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 COPY ./conf/hdfs-site.xml $SPARK_HOME/conf/hdfs-site.xml
 COPY ./conf/hive-site.xml $SPARK_HOME/conf/hive-site.xml
+COPY ./conf/log4j.properties $SPARK_HOME/conf/log4j.properties
 

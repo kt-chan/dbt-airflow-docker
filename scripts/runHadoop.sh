@@ -2,8 +2,9 @@
 
 sudo service ssh start
 
+cd $HADOOP_HOME
 sudo rm -rf /tmp/hadoop-hdfs/dfs/*
-$HADOOP_HOME/bin/hdfs namenode -format -force
+./bin/hdfs namenode -format -force
 
 # if [ ! -d "/tmp/hadoop-hdfs/dfs/name" ]; then
 #         $HADOOP_HOME/bin/hdfs namenode -format -force
@@ -19,4 +20,4 @@ hdfs dfs -mkdir -p /data
 hdfs dfs -mkdir -p /user/hive/warehouse
 hdfs dfs -put -f /sample/* /data/.
 
-tail -f $HADOOP_HOME/logs/hadoop-hdfs-namenode-hadoop-service.log
+tail -f /dev/null

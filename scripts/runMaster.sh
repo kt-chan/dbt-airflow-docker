@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 cd ${SPARK_HOME}
-./bin/spark-class org.apache.spark.deploy.master.Master --ip $SPARK_MASTER_HOST --port $SPARK_MASTER_PORT --webui-port $SPARK_MASTER_WEBUI_PORT >> /tmp/logs/spark-master.out &
+./sbin/start-master.sh 
 
-
-tail -f /tmp/logs/spark-master.out
+tail -f ${SPARK_HOME}/logs/Spark.log
