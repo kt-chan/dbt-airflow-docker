@@ -16,6 +16,9 @@ cd ${SPARK_HOME}
 
 ## test for local mode
  ./bin/spark-submit  \
- --class org.apache.spark.sql.hive.thriftserver.HiveThriftServer2 
+ --class org.apache.spark.sql.hive.thriftserver.HiveThriftServer2 \
+ &> ${SPARK_HOME}/logs/Spark.log
 
-tail -f ./logs/Spark.log
+sleep 10
+
+tail -f ${SPARK_HOME}/logs/Spark.log
