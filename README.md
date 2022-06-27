@@ -28,15 +28,15 @@ https://github.com/apache/hudi/tree/master/hudi-examples/hudi-examples-dbt
 * Run start.sh
 
 ## Connections
-* Airflow homepage: http://[hostname]:8080/home 
-* Jupyter notebook: http://[hostname]:8888/lab?token=welcome 
-* DBT homepage: http://[hostname]:8081/#!/overview 
-* Spark Master: http://[hostname]:8082/ 
-* Spark Thrift: http://[hostname]:4040/jobs/ 
+* Airflow homepage: `http://[hostname]:8080/home `
+* Jupyter notebook: `http://[hostname]:8888/lab?token=welcome `
+* DBT homepage: `http://[hostname]:8081/#!/overview `
+* Spark Master: `http://[hostname]:8082/ `
+* Spark Thrift: `http://[hostname]:4040/jobs/ `
 
 ## Docker Compose Commands
-* Run the services: ./start.sh for all service or ./start-spark.sh for spark with jupyter notebook only
-* Disable the services: ./clean.sh & ./prune.sh
+* Run the services: `./start.sh` for all service or `./start-spark.sh` for spark with jupyter notebook only
+* Disable the services: `./clean.sh` & `./prune.sh`
 
 If you need to check the log of the running containers, use `docker-compose logs [service-name] -f ` to view the running services log.
 If you need to connect to the running containers, use `docker-compose exec -it [service-name] bash ` to login the running services.
