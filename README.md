@@ -1,4 +1,4 @@
-# Apache Airflow and DBT using Docker Compose
+# Apache Airflow and DBT on Apache Spark with Hudi support, using Docker Compose
 Stand-alone project that utilises public eCommerce data from Instacart to demonstrate how to schedule dbt models through Airflow.
 
 For more Data & Analytics related reading, check https://analyticsmayhem.com
