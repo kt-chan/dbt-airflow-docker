@@ -2,18 +2,23 @@
     config(
         materialized='incremental',
         file_format='hudi',
+        incremental_strategy='insert_overwrite',
+        options={
+            'type': 'cow',
+            'precombineKey': 'order_date',
+        },
         unique_key='order_id'
     )
 }}
 
 
 with initial_dates as (
-    -- Initialise with Monday, Jan 6th 2019 as the first day
+    -- Initialise with Monday, Jan 6th 2022 as the first day
     select *
     , COALESCE(days_since_prior_order, 0) as days_since_prior_order_v2
     -- Randomize the day of the first order
     , case order_number
-        when 1 then timestamp '2019-01-06 00:00:00' + (round(random()) * 5 * INTERVAL '1 week') + INTERVAL '1 day' * order_dow + INTERVAL '1 hour' * order_hour_of_day
+        when 1 then timestamp '2022-01-06 00:00:00' + (round(random()) * 5 * INTERVAL '1 week') + INTERVAL '1 day' * order_dow + INTERVAL '1 hour' * order_hour_of_day
     end as random_date_v2
     from {{ source('instacart_raw', 'orders') }}
 ),

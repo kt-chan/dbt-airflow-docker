@@ -12,3 +12,13 @@ sources:
       - name: products
       - name: order_products__train
       - name: order_products__prior
+
+models:
+  - name: clean_orders
+    description: "Hudi insert non-partitioned table with incremental materialization"
+    columns:
+      - name: order_id
+        description: "The primary key for this table"
+        tests:
+            - unique
+            - not_null

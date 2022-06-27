@@ -65,7 +65,7 @@ def get_node_structure():
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2022, 5, 18),
+    'start_date':   days_ago(1),  # 7 days ago
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1
@@ -115,6 +115,13 @@ dbt_refresh_run = PythonOperator(
             dag=dbt_refresh_dag,
             depends_on_past = True
         )
+dbt_refresh_test = PythonOperator(
+            task_id= 'dbt_refresh_test',
+            python_callable=ssh_run,
+            op_kwargs={'cmd': 'cd /dbt && dbt test '},
+            dag=dbt_refresh_dag,
+            depends_on_past = True
+        )
 dbt_refresh_doc = PythonOperator(
             task_id= 'dbt_refresh_doc',
             python_callable=ssh_run,
@@ -123,7 +130,7 @@ dbt_refresh_doc = PythonOperator(
             depends_on_past = True
         )
 
-dbt_refresh_compile >> dbt_refresh_run >> dbt_refresh_doc
+dbt_refresh_compile >> dbt_refresh_run >> dbt_refresh_test >> dbt_refresh_doc
         
 data_operators = {}
 # [END instantiate_dag]
