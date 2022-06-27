@@ -22,19 +22,17 @@ https://github.com/apache/hudi/tree/master/hudi-examples/hudi-examples-dbt
 
 ## Setup 
 * Clone the repository
-* Extract the CSV files within ./sample_data directory (files are needed as seed data)
 * Run ./build.sh force
-
-Change directory within the repository and run `docker-compose up`. This will perform the following:
-* Based on the definition of [`docker-compose.yml`](https://github.com/konosp/dbt-airflow-docker-compose/blob/master/docker-compose.yml) will download the necessary images to run the project. This includes the following services:
-  * postgres-airflow: DB for Airflow to connect and store task execution information
-  * postgres-dbt: DB for the DBT seed data and SQL models to be stored
-  * airflow: Python-based image to execute Airflow scheduler and webserver
-  * adminer: a lightweight DB client
+* Extract the "Kaggle Instacart eCommerce dataset" files to the new ./sample_data directory (files are needed as seed data)
+* Run chmod +x *.sh
+* Run start.sh
 
 ## Connections
-* Adminer UI: [http://localhost:8080](http://localhost:8080/?pgsql=postgres-dbt&username=dbtuser&db=dbtdb&ns=dbt) Credentials as defined at [`docker-compose.yml`](https://github.com/konosp/dbt-airflow-docker-compose/blob/master/docker-compose.yml)
-* Airflow UI: http://localhost:8000
+* Airflow homepage: http://[hostname]:8080/home
+* Jupyter notebook: http://[hostname]:8888/lab?token=welcome
+* DBT homepage: http://[hostname]:8081/#!/overview
+* Spark Master: http://[hostname]:8082/
+* Spark Thrift: http://[hostname]:4040/jobs/
 
 ## How to ran the DAGs
 Once everything is up and running, navigate to the Airflow UI (see connections above). You will be presented with the list of DAGs, all Off by default.
