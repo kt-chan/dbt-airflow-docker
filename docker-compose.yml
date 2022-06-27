@@ -140,7 +140,9 @@ services:
       interval: 5s
       retries: 5
     restart: always
-
+    profiles:
+      - donotstart
+      
   postgres-hms:
     image: postgres:13
     container_name: postgres-hms

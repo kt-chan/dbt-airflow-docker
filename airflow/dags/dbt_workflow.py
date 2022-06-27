@@ -101,15 +101,31 @@ dbt_refresh_dag = DAG(
     schedule_interval = None,
 )
 
-dbt_refresh_operator = PythonOperator(
-            task_id= 'dbt_refresh',
+dbt_refresh_compile = PythonOperator(
+            task_id= 'dbt_refresh_compile',
             python_callable=ssh_run,
-            op_kwargs={'cmd': 'cd /dbt && dbt compile  && dbt run && dbt docs generate '},
+            op_kwargs={'cmd': 'cd /dbt && dbt compile '},
             dag=dbt_refresh_dag,
             depends_on_past = True
         )
+dbt_refresh_run = PythonOperator(
+            task_id= 'dbt_refresh_run',
+            python_callable=ssh_run,
+            op_kwargs={'cmd': 'cd /dbt && dbt run '},
+            dag=dbt_refresh_dag,
+            depends_on_past = True
+        )
+dbt_refresh_doc = PythonOperator(
+            task_id= 'dbt_refresh_doc',
+            python_callable=ssh_run,
+            op_kwargs={'cmd': 'cd /dbt && dbt docs generate '},
+            dag=dbt_refresh_dag,
+            depends_on_past = True
+        )
+
+dbt_refresh_compile >> dbt_refresh_run >> dbt_refresh_doc
         
-all_operators = {}
+data_operators = {}
 # [END instantiate_dag]
 
 nodes = get_node_structure()
@@ -126,7 +142,7 @@ for node in nodes:
             dag=daily_dag,
             depends_on_past = True
         )
-        all_operators[node] = tmp_operator
+        data_operators[node] = tmp_operator
 
     elif ('snapshot' in nodes[node]['tags']):
         bsh_cmd = 'cd /dbt && dbt run --models {nodeName} '.format(nodeName = node)
@@ -137,7 +153,7 @@ for node in nodes:
             dag=snapshot_dag,
             depends_on_past = True
         )
-        all_operators[node] = tmp_operator
+        data_operators[node] = tmp_operator
 
     elif ('init-once' in nodes[node]['tags']):
         date_end = "{{ ds }}"
@@ -150,12 +166,11 @@ for node in nodes:
             dag=init_once_dag,
             depends_on_past = True
         )
-        all_operators[node] = tmp_operator
+        data_operators[node] = tmp_operator
 
 # Parse nodes and assign operator dependencies
 for node in nodes:
     for parent in nodes[node]['ancestors']:
         if nodes[node]['tags'] == nodes[parent]['tags']:
-            all_operators[parent] >> all_operators[node]
+            data_operators[parent] >> data_operators[node]
 
-dbt_refresh_operator
