@@ -210,6 +210,7 @@ services:
   airflow-webserver:
     <<: *airflow-common
     container_name: airflow-webserver
+    hostname: airflow-webserver
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
     command:
@@ -235,6 +236,7 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     container_name: airflow-scheduler
+    hostname: airflow-scheduler
     command: scheduler
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
@@ -252,6 +254,7 @@ services:
   airflow-worker:
     <<: *airflow-common
     container_name: airflow-worker
+    hostname: airflow-worker
     command: celery worker
     healthcheck:
       test:
@@ -274,6 +277,7 @@ services:
   airflow-triggerer:
     <<: *airflow-common
     container_name: airflow-triggerer
+    hostname: airflow-triggerer
     command: triggerer
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
@@ -291,6 +295,7 @@ services:
   airflow-init:
     <<: *airflow-common
     container_name: airflow-init
+    hostname: airflow-init
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
     command:
@@ -370,6 +375,7 @@ services:
   airflow-cli:
     <<: *airflow-common
     container_name: airflow-client
+    hostname: airflow-client
     profiles:
       - debug
     environment:
@@ -384,6 +390,7 @@ services:
   airflow-flower:
     <<: *airflow-common
     container_name: airflow-flower
+    hostname: airflow-flower
     command: celery flower
     expose:
       - 5555

@@ -61,7 +61,7 @@ t3 = PythonOperator(task_id='create_aisles',
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
-                        LOCATION '/data/aisles' 
+                        LOCATION 'hdfs://hadoop-service:9000/data/aisles' 
                         tblproperties ("skip.header.line.count"="1")
                       """
                       },
@@ -80,7 +80,7 @@ t6 = PythonOperator(task_id='create_departments',
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
-                        LOCATION '/data/departments' 
+                        LOCATION 'hdfs://hadoop-service:9000/data/departments' 
                         tblproperties ("skip.header.line.count"="1")
                       """
                       },
@@ -98,7 +98,7 @@ t9 = PythonOperator(task_id='create_products',
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
-                        LOCATION '/data/products' 
+                        LOCATION 'hdfs://hadoop-service:9000/data/products' 
                         tblproperties ("skip.header.line.count"="1")
                       """
                       },
@@ -117,7 +117,7 @@ t12 = PythonOperator(task_id='create_orders',
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
-                        LOCATION '/data/orders' 
+                        LOCATION 'hdfs://hadoop-service:9000/data/orders' 
                         tblproperties ("skip.header.line.count"="1")
                       """
                       },
@@ -136,7 +136,7 @@ t15 = PythonOperator(task_id='create_order_products__prior',
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
-                        LOCATION '/data/order_products__prior' 
+                        LOCATION 'hdfs://hadoop-service:9000/data/order_products__prior' 
                         tblproperties ("skip.header.line.count"="1")                        
                       """
                       },
@@ -155,7 +155,7 @@ t18 = PythonOperator(task_id='create_order_products__train',
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
-                        LOCATION '/data/order_products__train' 
+                        LOCATION 'hdfs://hadoop-service:9000/data/order_products__train' 
                         tblproperties ("skip.header.line.count"="1")      
                       """
                       },

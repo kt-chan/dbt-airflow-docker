@@ -28,18 +28,25 @@
 		Note that the hive.metastore.warehouse.dir property in hive-site.xml is deprecated since Spark 2.0.0. 
 		Instead, use spark.sql.warehouse.dir to specify the default location of database in warehouse
 		this is already configured under spark-defaults.xml 
+		
+		*** both hive.metastore.warehouse.dir & hive.metastore.warehouse.external.dir doesn't work for external table ***
+		*** it is required to specify the full path hdfs//hadoop-service:9000/data/[table_dir_name] for working properly ***
 	-->
 	<!-- skip this for now , override by spark-defaults.xml -->
 	<!--
-	<property>
-       <name>hive.metastore.warehouse.dir</name>
-       <value>hdfs://hadoop-service:9000/user/hive/warehouse</value>
-    </property>
    	<property>
        <name>spark.sql.warehouse.dir</name>
        <value>hdfs://hadoop-service:9000/user/hive/warehouse</value>
     </property>
-   -->
+	<property>
+       <name>hive.metastore.warehouse.dir</name>
+       <value>hdfs://hadoop-service:9000/user/hive/warehouse</value>
+    </property>
+	<property>
+       <name>hive.metastore.warehouse.external.dir</name>
+       <value>hdfs://hadoop-service:9000/data/</value>
+    </property>
+	-->
    
    	<!-- setting up remote hms database for spark thrift -->
 	<!-- 
@@ -69,7 +76,7 @@
 	  <name>hive.metastore.schema.verification</name>
 	  <value>false</value>
 	</property>
-			
+	
 	<!-- 
 		setting up remote hms database for spark thrift, overrided by spark-defaults.conf 
 		spark.hadoop.datanucleus.fixedDatastore false
