@@ -16,7 +16,7 @@ from sqlalchemy.schema import *
 
 
 def jdbc_query(cmd=None, **kwargs):
-    hiveConn = HiveServer2Hook(hiveserver2_conn_id='spark_thrift_sample')
+    hiveConn = HiveServer2Hook(hiveserver2_conn_id='spark_thrift_default')
     try:
         hiveEngine = create_engine(hiveConn.get_uri().replace("hiveserver2", "hive")).connect()
         pd.read_sql_query(cmd,con=hiveEngine)
@@ -44,20 +44,25 @@ load_initial_data_dag = DAG(
     schedule_interval = None,
 )
 
-t1 = PythonOperator(task_id='create_schema',
+t1 = PythonOperator(task_id='create_schema_source',
+                      python_callable=jdbc_query,
+                      op_kwargs={'cmd': "CREATE DATABASE IF NOT EXISTS source;"},
+                      dag=load_initial_data_dag)
+
+t999 = PythonOperator(task_id='create_schema_sample',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': "CREATE DATABASE IF NOT EXISTS sample;"},
                       dag=load_initial_data_dag)
-
+                      
 t2 = PythonOperator(task_id='drop_table_aisles',
                       python_callable=jdbc_query,
-                      op_kwargs={'cmd': "DROP TABLE IF EXISTS sample.aisles;"},
+                      op_kwargs={'cmd': "DROP TABLE IF EXISTS source.aisles;"},
                       dag=load_initial_data_dag)
 
 t3 = PythonOperator(task_id='create_aisles',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create external table sample.aisles (aisle_id integer, aisle varchar(100) ) 
+                        create external table source.aisles (aisle_id integer, aisle varchar(100) ) 
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
@@ -70,13 +75,13 @@ t3 = PythonOperator(task_id='create_aisles',
 
 t5 = PythonOperator(task_id='drop_table_departments',
                       python_callable=jdbc_query,
-                      op_kwargs={'cmd': "DROP TABLE IF EXISTS sample.departments;"},
+                      op_kwargs={'cmd': "DROP TABLE IF EXISTS source.departments;"},
                       dag=load_initial_data_dag)
 
 t6 = PythonOperator(task_id='create_departments',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists sample.departments (department_id integer, department varchar(100))
+                        create table if not exists source.departments (department_id integer, department varchar(100))
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
@@ -88,13 +93,13 @@ t6 = PythonOperator(task_id='create_departments',
 
 t8 = PythonOperator(task_id='drop_table_products',
                       python_callable=jdbc_query,
-                      op_kwargs={'cmd': "DROP TABLE IF EXISTS sample.products;"},
+                      op_kwargs={'cmd': "DROP TABLE IF EXISTS source.products;"},
                       dag=load_initial_data_dag)
 
 t9 = PythonOperator(task_id='create_products',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists sample.products (product_id integer, product_name varchar(200),	aisle_id integer, department_id integer)
+                        create table if not exists source.products (product_id integer, product_name varchar(200),	aisle_id integer, department_id integer)
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
@@ -107,13 +112,13 @@ t9 = PythonOperator(task_id='create_products',
 
 t11 = PythonOperator(task_id='drop_table_orders',
                       python_callable=jdbc_query,
-                      op_kwargs={'cmd': "DROP TABLE IF EXISTS sample.orders;"},
+                      op_kwargs={'cmd': "DROP TABLE IF EXISTS source.orders;"},
                       dag=load_initial_data_dag)
 
 t12 = PythonOperator(task_id='create_orders',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists sample.orders ( order_id integer,user_id integer, eval_set varchar(10), order_number integer,order_dow integer,order_hour_of_day integer, days_since_prior_order real)
+                        create table if not exists source.orders ( order_id integer,user_id integer, eval_set varchar(10), order_number integer,order_dow integer,order_hour_of_day integer, days_since_prior_order real)
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
@@ -126,13 +131,13 @@ t12 = PythonOperator(task_id='create_orders',
 
 t14 = PythonOperator(task_id='drop_table_order_products__prior',
                       python_callable=jdbc_query,
-                      op_kwargs={'cmd': "DROP TABLE IF EXISTS sample.order_products__prior;"},
+                      op_kwargs={'cmd': "DROP TABLE IF EXISTS source.order_products__prior;"},
                       dag=load_initial_data_dag)
 
 t15 = PythonOperator(task_id='create_order_products__prior',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists sample.order_products__prior(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
+                        create table if not exists source.order_products__prior(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
@@ -145,13 +150,13 @@ t15 = PythonOperator(task_id='create_order_products__prior',
 
 t17 = PythonOperator(task_id='drop_table_order_products__train',
                       python_callable=jdbc_query,
-                      op_kwargs={'cmd': "DROP TABLE IF EXISTS sample.order_products__train;"},
+                      op_kwargs={'cmd': "DROP TABLE IF EXISTS source.order_products__train;"},
                       dag=load_initial_data_dag)
 
 t18 = PythonOperator(task_id='create_order_products__train',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists sample.order_products__train(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
+                        create table if not exists source.order_products__train(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
@@ -162,9 +167,9 @@ t18 = PythonOperator(task_id='create_order_products__train',
                       dag=load_initial_data_dag)
 
 
-t1 >> t2 >> t3 
-t1 >> t5 >> t6 
-t1 >> t8 >> t9 
-t1 >> t11 >> t12 
-t1 >> t14 >> t15 
-t1 >> t17 >> t18 
+t1 >> t2 >> t3 >> t999
+t1 >> t5 >> t6  >> t999
+t1 >> t8 >> t9  >> t999
+t1 >> t11 >> t12  >> t999
+t1 >> t14 >> t15  >> t999
+t1 >> t17 >> t18  >> t999

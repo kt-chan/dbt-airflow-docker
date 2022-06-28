@@ -4,5 +4,10 @@ with v_orderprodcts as (
     UNION 
     select *
     from {{ source('instacart_raw', 'order_products__train') }}
-) select *
-    from v_orderprodcts 
+) select 
+    cast(t1.order_id as int)
+,	cast(t1.product_id as int)
+,	cast(t1.add_to_cart_order as int)
+,	cast( t1.reordered  as boolean)
+    from v_orderprodcts t1
+where order_id is not null and  product_id is not null 

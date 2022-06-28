@@ -29,13 +29,13 @@ cumulative_dates as (
     from initial_dates
 )
 select 
-    order_id
-    , user_id
-    , order_number
-    , order_dow
-    , order_hour_of_day
-    , days_since_prior_order
-    , days_since_prior_order_cum
+    cast(order_id as int)
+    , cast(user_id as int)
+    , cast(order_number as int)
+    , cast(order_dow as int)
+    , cast(order_hour_of_day as int)
+    , days_since_prior_order 
+    , days_since_prior_order_cum 
     , date_trunc('day', first_order + days_since_prior_order_cum * INTERVAL '1 day') + ( order_hour_of_day * INTERVAL '1 hour' ) as order_date
 from cumulative_dates
 where order_id is not null

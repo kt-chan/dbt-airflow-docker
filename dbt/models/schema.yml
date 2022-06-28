@@ -4,7 +4,7 @@ sources:
   - name: instacart_raw
     # no database on sparksql
     # database: dbtdb 
-    schema: sample
+    schema: source
     tables:
       - name: aisles
       - name: departments
@@ -16,9 +16,27 @@ sources:
 models:
   - name: clean_orders
     description: "Hudi insert non-partitioned table with incremental materialization"
+    schema: sample
     columns:
       - name: order_id
         description: "The primary key for this table"
         tests:
             - unique
+            - not_null
+  - name: order_products
+    description: "Hudi insert non-partitioned table with incremental materialization"
+    schema: sample
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+            - product_id
+    columns:
+      - name: order_id
+        description: "The primary key for this table"
+        tests:
+            - not_null
+      - name: product_id
+        description: "The primary key for this table"
+        tests:
             - not_null

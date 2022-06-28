@@ -470,7 +470,7 @@ services:
       - ${SPARK_THRIFT_PORT}:${SPARK_THRIFT_PORT}
       - ${SPARK_UI_PORT}:${SPARK_UI_PORT}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_THRIFT_PORT}"]
+      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_UI_PORT}"]
       interval: 5s
       start_period: 60s
       retries: 3
@@ -526,8 +526,10 @@ services:
     environment:
       <<: *spark-common-env
       HADOOP_HOME: ${HADOOP_HOME}
+    ports:
+     - ${HDFS_DEFAULTFS_PORT}:${HDFS_DEFAULTFS_PORT}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      test: ["CMD", "hdfs", "dfs", "-test", "-e", "/"]
       interval: 5s
       retries: 5
     restart: always
