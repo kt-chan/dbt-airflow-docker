@@ -1,3 +1,13 @@
+{{
+    config(
+        materialized='incremental',
+        file_format='hudi',
+        unique_key='order_id,product_id'
+    )
+}}
+
+
+
 with v_orderprodcts as (
     select *
     from {{ source('instacart_raw', 'order_products__prior') }}

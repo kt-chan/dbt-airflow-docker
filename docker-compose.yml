@@ -470,7 +470,7 @@ services:
       - ${SPARK_THRIFT_PORT}:${SPARK_THRIFT_PORT}
       - ${SPARK_UI_PORT}:${SPARK_UI_PORT}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SPARK_UI_PORT}"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${SPARK_UI_PORT} || kill -9 `ps aux | grep Spark.log -m1 | awk {'print$$2'}`"]
       interval: 5s
       start_period: 60s
       retries: 3
