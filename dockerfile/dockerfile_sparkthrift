@@ -1,7 +1,0 @@
-FROM spark-base
-
-WORKDIR ${SPARK_HOME}
-ADD ./scripts/runThrift.sh run.sh
-RUN chmod a+x run.sh
-
-ENTRYPOINT ["sh", "run.sh"]

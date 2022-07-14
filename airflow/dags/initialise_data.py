@@ -67,7 +67,7 @@ t3 = PythonOperator(task_id='create_aisles',
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
                         LOCATION 'hdfs://hadoop-service:9000/data/aisles' 
-                        tblproperties ("skip.header.line.count"="1")
+                        tblproperties ('skip.header.line.count'='1')
                       """
                       },
                       dag=load_initial_data_dag)
@@ -86,7 +86,7 @@ t6 = PythonOperator(task_id='create_departments',
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
                         LOCATION 'hdfs://hadoop-service:9000/data/departments' 
-                        tblproperties ("skip.header.line.count"="1")
+                        tblproperties ('skip.header.line.count'='1')
                       """
                       },
                       dag=load_initial_data_dag)
@@ -104,7 +104,7 @@ t9 = PythonOperator(task_id='create_products',
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
                         LOCATION 'hdfs://hadoop-service:9000/data/products' 
-                        tblproperties ("skip.header.line.count"="1")
+                        tblproperties ('skip.header.line.count'='1')
                       """
                       },
                       dag=load_initial_data_dag)
@@ -123,45 +123,44 @@ t12 = PythonOperator(task_id='create_orders',
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
                         LOCATION 'hdfs://hadoop-service:9000/data/orders' 
-                        tblproperties ("skip.header.line.count"="1")
+                        TBLPROPERTIES ('external.table.purge'='true', 'skip.header.line.count'='1')
                       """
                       },
                       dag=load_initial_data_dag)
 
-
-t14 = PythonOperator(task_id='drop_table_order_products__prior',
+t14 = PythonOperator(task_id='drop_table_order_products',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': "DROP TABLE IF EXISTS source.order_products__prior;"},
                       dag=load_initial_data_dag)
 
-t15 = PythonOperator(task_id='create_order_products__prior',
+t15 = PythonOperator(task_id='create_order_products',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists source.order_products__prior(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
+                        create table if not exists source.order_products(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
                         LOCATION 'hdfs://hadoop-service:9000/data/order_products__prior' 
-                        tblproperties ("skip.header.line.count"="1")                        
+                        tblproperties ('skip.header.line.count'='1')                        
                       """
                       },
                       dag=load_initial_data_dag)
 
 
-t17 = PythonOperator(task_id='drop_table_order_products__train',
+t17 = PythonOperator(task_id='drop_table_order_products__new',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': "DROP TABLE IF EXISTS source.order_products__train;"},
                       dag=load_initial_data_dag)
 
-t18 = PythonOperator(task_id='create_order_products__train',
+t18 = PythonOperator(task_id='create_order_products__new',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': """
-                        create table if not exists source.order_products__train(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
+                        create table if not exists source.order_products_new(order_id integer, product_id integer, add_to_cart_order integer, reordered integer)
                         ROW FORMAT DELIMITED 
                         FIELDS TERMINATED BY ',' 
                         STORED AS TEXTFILE 
                         LOCATION 'hdfs://hadoop-service:9000/data/order_products__train' 
-                        tblproperties ("skip.header.line.count"="1")      
+                        tblproperties ('skip.header.line.count'='1')      
                       """
                       },
                       dag=load_initial_data_dag)
@@ -170,6 +169,6 @@ t18 = PythonOperator(task_id='create_order_products__train',
 t1 >> t2 >> t3 >> t999
 t1 >> t5 >> t6  >> t999
 t1 >> t8 >> t9  >> t999
-t1 >> t11 >> t12  >> t999
+t1 >> t11 >> t12 >> t999
 t1 >> t14 >> t15  >> t999
 t1 >> t17 >> t18  >> t999

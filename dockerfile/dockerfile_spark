@@ -18,6 +18,7 @@ RUN apt-get install -y python3 python3-pip curl wget unzip procps openjdk-8-jdk 
   ln -s /usr/bin/python3 /usr/bin/python && \
   rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install wget requests datawrangler
 
 RUN apt-get install -y wget procps libpostgresql-jdbc-java 
 
@@ -32,9 +33,10 @@ RUN ln -s /usr/share/java/postgresql-jdbc4.jar /usr/spark/jars/postgresql-jdbc4.
     
 
 # Add User
-RUN useradd -m hdfs && echo "hdfs:supergroup" | chpasswd && adduser hdfs sudo && echo "hdfs     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN useradd -m hive && echo "hive:supergroup" | chpasswd && adduser hive sudo && echo "hive     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN useradd -m spark && echo "spark:supergroup" | chpasswd && adduser spark sudo && echo "spark     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN groupadd -r hadoop --gid=1001 
+RUN useradd -m hdfs -g hadoop && adduser hdfs sudo && echo "hdfs     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -m hive -g hadoop && adduser hive sudo && echo "hive     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -m spark -g hadoop && adduser spark sudo && echo "spark     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 
 # Prepare dirs
@@ -46,3 +48,19 @@ COPY ./conf/hdfs-site.xml $SPARK_HOME/conf/hdfs-site.xml
 COPY ./conf/hive-site.xml $SPARK_HOME/conf/hive-site.xml
 COPY ./conf/log4j.properties $SPARK_HOME/conf/log4j.properties
 
+WORKDIR ${SPARK_HOME}
+
+COPY ./scripts/runMaster.sh  /usr/local/bin
+RUN chown spark:hadoop /usr/local/bin/runMaster.sh && chmod +x /usr/local/bin/runMaster.sh
+
+COPY ./scripts/runWorker.sh  /usr/local/bin
+RUN chown spark:hadoop /usr/local/bin/runWorker.sh && chmod +x /usr/local/bin/runWorker.sh
+
+COPY ./scripts/runThrift.sh  /usr/local/bin
+RUN chown spark:hadoop /usr/local/bin/runThrift.sh && chmod +x /usr/local/bin/runThrift.sh
+
+RUN mkdir -p  ${SPARK_HOME}/logs
+RUN chown spark:hadoop -R ${SPARK_HOME}
+
+ENV PATH $PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+expose 4040 7070 8081 8082 10000

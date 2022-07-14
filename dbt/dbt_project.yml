@@ -29,8 +29,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
 vars:
-    start_date: '01-01-2022'
-    end_date: '02-01-2022'
+    start_date: '01-01-2020'
+    end_date: '01-01-2022'
 
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
@@ -39,10 +39,10 @@ models:
     +file_format: parquet
     instacart:
         materialized: table
-        daily:
-            materialized: incremental
-            tags: daily
-        initialisation:
-            tags: init-once
         core:
+            materialized: incremental
+            tags: init-once
+        stage:
+            tags: daily
+        service:
             tags: snapshot

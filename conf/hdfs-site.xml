@@ -26,10 +26,11 @@
         <name>dfs.permissions</name>
         <value>false</value>
     </property>
-
+	<!-- presto error https://github.com/prestodb/presto/issues/16931 -->
+	<!-- fs.hdfs.impl.disable.cache must set to false -->
     <property>
         <name>fs.hdfs.impl.disable.cache</name>
-        <value>true</value>
+        <value>false</value>
     </property>
 </configuration>
 

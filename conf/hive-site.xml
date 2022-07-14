@@ -18,12 +18,61 @@
 
 <configuration>
 	
-	<!-- Prevent multi spark process conflict -->
+	<property>
+		<name>hive.metastore.uris</name>
+		<value>thrift://hms-service:9083</value>
+	</property>
+	<property>
+       <name>hive.metastore.warehouse.dir</name>
+       <value>/user/hive/warehouse</value>
+    </property>
+	
+	<property>
+		<name>javax.jdo.option.ConnectionURL</name>
+		<value>jdbc:postgresql://postgres-hms:5432/metastore?createDatabaseIfNotExist=true</value>
+	</property>
+	<property>
+		<name>javax.jdo.option.ConnectionDriverName</name>
+		<value>org.postgresql.Driver</value>
+	</property>
+	<property>
+		<name>javax.jdo.option.ConnectionUserName</name>
+		<value>hive</value>
+	</property>
+		<property>
+		<name>javax.jdo.option.ConnectionPassword</name>
+		<value>pssd</value>
+	</property>
+	<property>
+	  <name>hive.metastore.schema.verification</name>
+	  <value>false</value>
+	</property>
+	
 	<property>
 	  <name>hive.exec.stagingdir</name>
 	  <value>/tmp/hive/spark-${user.name}</value>
 	</property>
+
+
+	<property>
+		<name>hive.execution.engine</name>
+		<value>mr</value>
+	</property>
+	<property>
+		<name>hive.server2.active.passive.ha.enable</name>
+		<value>false</value>
+	</property>
 	
+	<property>
+		<name>hive.server2.authentication</name>
+		<value>NONE</value>
+	</property>
+	<property>
+		 <name>datanucleus.autoCreateSchema</name>
+		 <value>false</value>
+		 <description>Creates necessary schema on a startup if one doesn't exist</description>
+	</property> 
+
 	<!-- 
 		Note that the hive.metastore.warehouse.dir property in hive-site.xml is deprecated since Spark 2.0.0. 
 		Instead, use spark.sql.warehouse.dir to specify the default location of database in warehouse
@@ -56,63 +105,5 @@
 		spark.hadoop.javax.jdo.option.ConnectionPassword pssd
 		spark.hadoop.hive.metastore.schema.verification false 
 	-->
-	<property>
-		<name>javax.jdo.option.ConnectionURL</name>
-		<value>jdbc:postgresql://postgres-hms:5432/metastore?createDatabaseIfNotExist=true</value>
-	</property>
-	<property>
-		<name>javax.jdo.option.ConnectionDriverName</name>
-		<value>org.postgresql.Driver</value>
-	</property>
-	<property>
-		<name>javax.jdo.option.ConnectionUserName</name>
-		<value>hive</value>
-	</property>
-		<property>
-		<name>javax.jdo.option.ConnectionPassword</name>
-		<value>pssd</value>
-	</property>
-	<property>
-	  <name>hive.metastore.schema.verification</name>
-	  <value>false</value>
-	</property>
-	
-	<!-- 
-		setting up remote hms database for spark thrift, overrided by spark-defaults.conf 
-		spark.hadoop.datanucleus.fixedDatastore false
-		spark.hadoop.datanucleus.autoCreateSchema true
-		spark.hadoop.datanucleus.schema.autoCreateTables true
-	-->
-	<!-- 
-	<property>
-		<name>datanucleus.fixedDatastore</name>
-		<value>false</value>
-	</property>
-	<property>
-		<name>datanucleus.autoCreateSchema</name>
-		<value>true</value>
-	</property>
-	</property>
-		<property>
-		<name>datanucleus.schema.autoCreateAll</name>
-		<value>true</value>
-	</property>
-	<property>
-		<name>datanucleus.schema.autoCreateTables</name>
-		<value>true</value>
-	</property>
-	<property>
-		<name>hive.metastore.schema.verification</name>
-		<value>false</value>
-	</property>
-	-->
-	
-	<!-- this is for using hiveserver2, instead of spark thrift -->
-	<!-- 
-	<property>
-		<name>hive.metastore.uris</name>
-		<value>thrift://localhost:9083</value>
-	</property>
-	 -->
 </configuration>
 
