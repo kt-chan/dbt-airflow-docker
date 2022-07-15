@@ -8,7 +8,8 @@ cd /dbt
 
 # dbt compile
 # dbt docs generate 
-dbt docs serve --port 8081 & 
+dbt deps
+nohup dbt docs serve --port 8081  >  ${DBT_HOME}/logs/dbt.log 2>&1 &
 
 ## # Wait for any process to exit
 ## wait -n
@@ -17,4 +18,4 @@ dbt docs serve --port 8081 &
 ## exit $?
 
 ## testing for log output
-tail -f /dbt/logs/dbt.log
+tail -f ${DBT_HOME}/logs/dbt.log

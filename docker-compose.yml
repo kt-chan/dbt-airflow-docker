@@ -118,8 +118,8 @@ services:
       - ./scripts_postgres:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
 
   postgres-dbt:
@@ -137,8 +137,8 @@ services:
       - ./sample_data:/sample_data
     healthcheck:
       test: ["CMD", "pg_isready"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     profiles:
       - donotstart
@@ -157,8 +157,8 @@ services:
       - pg-hms-volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
 
 
@@ -184,8 +184,8 @@ services:
       - ./dbt/profiles.yml:/root/.dbt/profiles.yml
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081"]
-      interval: 5s
-      retries: 5    
+      interval: 10s
+      retries: 3    
     restart: always
     depends_on:
       hadoop-service:
@@ -202,9 +202,9 @@ services:
       - 6379
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 10s
       timeout: 30s
-      retries: 50
+      retries: 30
     restart: always
 
   airflow-webserver:
@@ -226,7 +226,7 @@ services:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 3
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -242,7 +242,7 @@ services:
       test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 3
     environment:
       <<: *airflow-common-env      
     restart: always
@@ -262,7 +262,7 @@ services:
         - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 3
     environment:
       <<: *airflow-common-env
       # Required to handle warm shutdown of the celery workers properly
@@ -283,7 +283,7 @@ services:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 3
     environment:
       <<: *airflow-common-env      
     restart: always
@@ -398,7 +398,7 @@ services:
       test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 3
     environment:
       <<: *airflow-common-env      
     restart: always
@@ -438,7 +438,7 @@ services:
       test: ["CMD", "curl", "--fail", "http://localhost:8888/"]
       interval: 10s
       timeout: 10s
-      retries: 5        
+      retries: 3        
     volumes:
       - ./jupyter:/home/jovyan:consistent
 
@@ -456,8 +456,8 @@ services:
       - runMaster.sh
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SPARK_MASTER_WEBUI_PORT}"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     depends_on:
       postgres-hms:
@@ -480,8 +480,8 @@ services:
     entrypoint: 
       - runThrift.sh
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${SPARK_UI_PORT} || kill -9 `ps aux | grep Spark.log -m1 | awk {'print $$2'}`"]
-      interval: 5s
+      test: ["CMD-SHELL", "curl -f http://localhost:${SPARK_UI_PORT}"]
+      interval: 10s
       start_period: 60s
       retries: 3
     restart: always
@@ -508,8 +508,8 @@ services:
       - runWorker.sh
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SPARK_WORKER_PORT}"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     depends_on:
       spark-master:
@@ -528,8 +528,8 @@ services:
       - runWorker.sh
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SPARK_WORKER_PORT}"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     depends_on:
       spark-master:
@@ -549,8 +549,8 @@ services:
       - runHadoop.sh
     healthcheck:
       test: ["CMD", "hdfs", "dfs", "-test", "-e", "/"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     volumes:
       - ./sample_data:/sample/:ro
@@ -566,8 +566,8 @@ services:
       - runHMS.sh
     healthcheck:
       test: ["CMD-SHELL", "netstat -anlp | grep -c 9083"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     depends_on:
         postgres-hms: 
@@ -581,8 +581,8 @@ services:
     hostname: presto-service
     healthcheck:
       test: ["CMD-SHELL", "netstat -anlp | grep -c 8282"]
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 3
     restart: always
     depends_on:
         hms-service: 

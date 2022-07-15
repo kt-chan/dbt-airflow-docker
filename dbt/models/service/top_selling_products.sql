@@ -1,8 +1,20 @@
+
 SELECT
-    t1.product_name
-    , t1.number_of_orders
+    t2.product_id
+    , t2.product_name
+    , t2.aisle_id
+    , t2.department_id
+    , count(t1.order_id) as number_of_orders
 FROM
-    {{ ref('stg_top_selling_products') }} as t1
+    {{ ref('order_products') }} as t1
+LEFT JOIN
+    {{ source('instacart_raw','products') }} as t2
+ON 
+    t1.product_id = t2.product_id
+GROUP BY
+    t2.product_id
+    , t2.product_name
+    , t2.aisle_id
+    , t2.department_id
 ORDER BY
-    t1.number_of_orders DESC
-LIMIT 10
+    number_of_orders DESC

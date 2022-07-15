@@ -27,8 +27,7 @@ with v_orders as (
     , t2.product_id,	t2.add_to_cart_order,	t2.reordered
     , t3.product_name
     , t4.aisle_id, t4.aisle, t5.department_id, t5.department 
-    from v_orders t1
-    left join v_orderprodcts t2 on t1.order_id = t2.order_id
+    from v_orders t1 join v_orderprodcts t2 on t1.order_id = t2.order_id
     left join  v_products t3 on t2.product_id = t3.product_id
     left join  v_aisles t4 on t3.aisle_id = t4.aisle_id
     left join  v_departments t5 on t3.department_id = t5.department_id

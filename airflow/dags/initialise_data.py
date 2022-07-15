@@ -49,7 +49,12 @@ t1 = PythonOperator(task_id='create_schema_source',
                       op_kwargs={'cmd': "CREATE DATABASE IF NOT EXISTS source;"},
                       dag=load_initial_data_dag)
 
-t999 = PythonOperator(task_id='create_schema_sample',
+t999a = PythonOperator(task_id='drop_schema_sample',
+                      python_callable=jdbc_query,
+                      op_kwargs={'cmd': "DROP DATABASE IF EXISTS sample CASCADE;"},
+                      dag=load_initial_data_dag)
+                      
+t999b = PythonOperator(task_id='create_schema_sample',
                       python_callable=jdbc_query,
                       op_kwargs={'cmd': "CREATE DATABASE IF NOT EXISTS sample;"},
                       dag=load_initial_data_dag)
@@ -166,9 +171,9 @@ t18 = PythonOperator(task_id='create_order_products__new',
                       dag=load_initial_data_dag)
 
 
-t1 >> t2 >> t3 >> t999
-t1 >> t5 >> t6  >> t999
-t1 >> t8 >> t9  >> t999
-t1 >> t11 >> t12 >> t999
-t1 >> t14 >> t15  >> t999
-t1 >> t17 >> t18  >> t999
+t1 >> t2 >> t3 >> t999a >> t999b
+t1 >> t5 >> t6  >> t999a >> t999b
+t1 >> t8 >> t9  >> t999a >> t999b
+t1 >> t11 >> t12 >> t999a >> t999b
+t1 >> t14 >> t15  >> t999a >> t999b
+t1 >> t17 >> t18  >> t999a >> t999b
